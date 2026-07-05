@@ -72,7 +72,10 @@
   transition: 0.3s;
   margin-top: 10px;
 }
-
+.register-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 .register-form button:hover {
   transform: translateY(-3px);
   box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);

@@ -1,17 +1,22 @@
 import { useState } from "react";
 import "./register.css";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+
 const Register = () => {
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
   const [userPassword, setUserPassword] = useState("");
   const [userConfirmPassword, setuserConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const userNameChange = (e) => {
-    setUserName(e.target.value);
+    setUserName(e.target.value.trimStart());
   };
   const userEmailChange = (e) => {
-    setUserEmail(e.target.value);
+    setUserEmail(e.target.value.toLowerCase());
   };
   const userPasswordChange = (e) => {
     setUserPassword(e.target.value);
@@ -22,6 +27,7 @@ const Register = () => {
 
   const formHandler = async (e) => {
     e.preventDefault();
+    setLoading(true);
     const response = await fetch("http://localhost:5051/register", {
       method: "POST",
       body: JSON.stringify({
@@ -37,10 +43,17 @@ const Register = () => {
     const result = await response.json();
     if (response.ok) {
       toast.success(result.message);
+      setUserName("");
+      setUserEmail("");
+      setUserPassword("");
+      setuserConfirmPassword("");
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
     } else {
       toast.error(result.message);
     }
-    console.log(result.message);
+    setLoading(false);
   };
 
   return (
@@ -52,6 +65,8 @@ const Register = () => {
         <form className="register-form" onSubmit={formHandler}>
           <input
             onChange={userNameChange}
+            value={userName}
+            minLength={6}
             type="text"
             placeholder="User Name"
             required
@@ -59,6 +74,7 @@ const Register = () => {
 
           <input
             onChange={userEmailChange}
+            value={userEmail}
             type="email"
             placeholder="Email Address"
             required
@@ -66,6 +82,8 @@ const Register = () => {
 
           <input
             onChange={userPasswordChange}
+            value={userPassword}
+            minLength={8}
             type="password"
             placeholder="Password"
             required
@@ -73,6 +91,7 @@ const Register = () => {
 
           <input
             onChange={userConfirmPasswordChange}
+            value={userConfirmPassword}
             type="password"
             placeholder="Confirm Password"
             required
@@ -84,7 +103,12 @@ const Register = () => {
               <p className="error">✗ Passwords do not match</p>
             ))}
 
-          <button type="submit">Create Account</button>
+          <button
+            type="submit"
+            disabled={userPassword !== userConfirmPassword || loading}
+          >
+            {loading ? "Creating..." : "Create Account"}
+          </button>
         </form>
 
         <div className="login-link">
