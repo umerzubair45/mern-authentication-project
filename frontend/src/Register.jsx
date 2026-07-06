@@ -13,7 +13,7 @@ const Register = () => {
   const navigate = useNavigate();
 
   const userNameChange = (e) => {
-    setUserName(e.target.value.trimStart());
+    setUserName(e.target.value);
   };
   const userEmailChange = (e) => {
     setUserEmail(e.target.value.toLowerCase());

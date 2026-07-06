@@ -1,6 +1,41 @@
+import { useState } from "react";
 import "./login.css";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const [formData, setFormData] = useState({ userEmail: "", userPassword: "" });
+  const navigate = useNavigate();
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+  const loginHandler = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch("http://localhost:5051/login", {
+        method: "POST",
+        body: JSON.stringify(formData),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        toast.success(result.message);
+        localStorage.setItem("token", result.token);
+        console.log(localStorage.getItem("token"));
+        navigate("/dashboard");
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="login-page">
       <div className="login-card">
@@ -9,17 +44,31 @@ const Login = () => {
           <p>Login to continue to your account</p>
         </div>
 
-        <form className="login-form">
+        <form className="login-form" onSubmit={loginHandler}>
           <div className="input-group">
             <label>Email Address</label>
-            <input type="email" placeholder="Enter your email" />
+            <input
+              type="email"
+              name="userEmail"
+              value={formData.userEmail}
+              onChange={handleChange}
+              placeholder="Enter your email"
+              required
+            />
           </div>
 
           <div className="input-group">
             <label>Password</label>
 
             <div className="password-box">
-              <input type="password" placeholder="Enter password" />
+              <input
+                type="password"
+                name="userPassword"
+                value={formData.userPassword}
+                onChange={handleChange}
+                placeholder="Enter password"
+                required
+              />
 
               <span className="eye-btn">👁</span>
             </div>
