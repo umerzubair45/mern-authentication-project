@@ -14,7 +14,7 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:5051/login", {
+      const response = await fetch("http://localhost:5051/api/auth/login", {
         method: "POST",
         body: JSON.stringify(formData),
         headers: {

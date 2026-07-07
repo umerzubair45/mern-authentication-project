@@ -28,7 +28,7 @@ const Register = () => {
   const formHandler = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const response = await fetch("http://localhost:5051/register", {
+    const response = await fetch("http://localhost:5051/api/auth/register", {
       method: "POST",
       body: JSON.stringify({
         userName,

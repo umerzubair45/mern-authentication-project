@@ -1,25 +1,27 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const DbConnection = require("./DbConnection");
+const DbConnection = require("./congif/DbConnection");
 const User = require("./models/User");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const verifyToken = require("./middleware/AuthMiddleware");
+const authRoutes = require("./routes/AuthRoutes");
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 
+app.use("/api/auth", authRoutes);
 app.listen(5051, () => {
   console.log("server is running on port number:5051");
 });
 
 DbConnection();
 
-app.post("/register", async (req, res) => {
+/*app.post("/registerrr", async (req, res) => {
   try {
     const { userName, userEmail, userPassword, userConfirmPassword } = req.body;
 
@@ -122,10 +124,12 @@ app.post("/login", async (req, res) => {
       message: "Internal Server Error",
     });
   }
-});
+});*/
 app.get("/profile", verifyToken, (req, res) => {
   console.log(req.user);
   res.json({
     message: "Welcome to Profile",
   });
 });
+
+app.use(authRoutes);
