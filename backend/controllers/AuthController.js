@@ -85,20 +85,14 @@ const login = async (req, res) => {
     }
     const token = GenerateToken(user);
 
-    /* const token = jwt.sign(
-      {
-        userId: user._id,
-        userEmail: user.userEmail,
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "1d",
-      },
-    );*/
-
     res.status(200).json({
       message: "Login Successful",
       token,
+      user: {
+        _id: user._id,
+        userName: user.userName,
+        userEmail: user.userEmail,
+      },
     });
   } catch (err) {
     console.log(err);

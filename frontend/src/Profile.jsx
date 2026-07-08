@@ -1,20 +1,27 @@
 import { useEffect } from "react";
+import { useContext } from "react";
+import AuthContext from "./context/AuthContext";
 
 const Profile = () => {
-  async function getProfile() {
-    const token = localStorage.getItem("token");
+  const { user } = useContext(AuthContext);
+  const { loading } = useContext(AuthContext);
 
-    const response = await fetch("http://localhost:5051/api/auth/profile", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    const result = await response.json();
-    console.log(result.userData.userEmail);
+  if (loading) {
+    return <h2>Loading...</h2>;
   }
-  useEffect(() => {
-    getProfile();
-  }, []);
-  return <div> hi from Profile</div>;
+  return (
+    <div>
+      <h2>Profile</h2>
+
+      {user ? (
+        <>
+          <p>Name: {user.userName}</p>
+          <p>Email: {user.userEmail}</p>
+        </>
+      ) : (
+        <p>No user found</p>
+      )}
+    </div>
+  );
 };
 export default Profile;

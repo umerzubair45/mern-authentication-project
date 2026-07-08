@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import "./login.css";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import AuthContext from "./context/AuthContext";
 
 const Login = () => {
   const [formData, setFormData] = useState({ userEmail: "", userPassword: "" });
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -26,7 +28,7 @@ const Login = () => {
       if (response.ok) {
         toast.success(result.message);
         localStorage.setItem("token", result.token);
-        console.log(localStorage.getItem("token"));
+        login(result.user, result.token);
         navigate("/dashboard");
       } else {
         toast.error(result.message);

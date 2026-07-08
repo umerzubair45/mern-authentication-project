@@ -1,6 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const DbConnection = require("./congif/DbConnection");
+const DbConnection = require("./config/DbConnection");
 const User = require("./models/User");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
@@ -132,4 +132,4 @@ app.get("/profile", verifyToken, (req, res) => {
   });
 });
 
-app.use(authRoutes);
+//app.use(authRoutes);
