@@ -1,0 +1,148 @@
+/* ===========================
+   Login Page
+=========================== */
+.login-page {
+  min-height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 20px;
+  background: linear-gradient(135deg, #4f46e5, #9333ea, #ec4899);
+
+  /*background: linear-gradient(135deg, #a7bfdf 0%, #74899e 50%, #a7adbf 100%);*/
+}
+
+/* ===========================
+   Login Card
+=========================== */
+
+.login-card {
+  width: 100%;
+  max-width: 450px;
+}
+
+/* ===========================
+   Header
+=========================== */
+
+.login-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.login-header h1 {
+  font-size: 2rem;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.login-header p {
+  color: var(--text-light);
+  font-size: 15px;
+}
+
+/* ===========================
+   Form
+=========================== */
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ===========================
+   Remember & Forgot Password
+=========================== */
+
+.login-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  font-size: 14px;
+}
+
+.remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  color: var(--text-light);
+}
+
+.login-options a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.login-options a:hover {
+  text-decoration: underline;
+}
+
+/* ===========================
+   Divider
+=========================== */
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.divider span {
+  margin: 0 15px;
+  color: var(--text-light);
+  font-size: 14px;
+}
+
+/* ===========================
+   Register Link
+=========================== */
+
+.register-link {
+  text-align: center;
+  color: var(--text-light);
+  font-size: 15px;
+}
+
+.register-link a {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
+}
+
+/* ===========================
+   Responsive
+=========================== */
+
+@media (max-width: 576px) {
+  .login-card {
+    padding: 0;
+  }
+
+  .login-header h1 {
+    font-size: 1.7rem;
+  }
+
+  .login-options {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+}

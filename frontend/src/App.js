@@ -1,13 +1,16 @@
 import "./App.css";
 import { Routes, Route } from "react-router-dom";
-import Register from "./Register";
+import Register from "./pages/Register";
 import { Toaster } from "react-hot-toast";
-import Login from "./Login";
+import Login from "./pages/Login";
 import Dashboard from "./Dashboard";
 import Profile from "./Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import Navbar from "./components/Navbar";
+import VerifyEmail from "./pages/VerifyEmail";
+import ForgotPassword from "../src/pages/ForgotPassword/ForgotPassword";
+import ResetPassword from "../src/pages/ForgotPassword/ResetPassword";
 
 function App() {
   return (
@@ -41,6 +44,9 @@ function App() {
           }
         />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/verify-email/:token" element={<VerifyEmail />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
       </Routes>
     </>
   );

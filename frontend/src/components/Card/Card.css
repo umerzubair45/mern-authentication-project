@@ -1,0 +1,35 @@
+/* ===========================
+   Card
+=========================== */
+
+.card {
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+
+  border-radius: var(--radius-lg);
+
+  padding: 32px;
+
+  box-shadow: var(--shadow);
+
+  transition: var(--transition);
+}
+
+/* ===========================
+   Hover
+=========================== */
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+/* ===========================
+   Responsive
+=========================== */
+
+@media (max-width: 768px) {
+  .card {
+    padding: 24px;
+  }
+}

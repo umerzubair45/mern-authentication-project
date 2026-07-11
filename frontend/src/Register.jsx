@@ -66,6 +66,7 @@ const Register = () => {
           <input
             onChange={userNameChange}
             value={userName}
+            name="userName"
             minLength={6}
             type="text"
             placeholder="User Name"
@@ -75,6 +76,7 @@ const Register = () => {
           <input
             onChange={userEmailChange}
             value={userEmail}
+            name="userEmail"
             type="email"
             placeholder="Email Address"
             required
@@ -83,6 +85,7 @@ const Register = () => {
           <input
             onChange={userPasswordChange}
             value={userPassword}
+            name="userPassword"
             minLength={8}
             type="password"
             placeholder="Password"
@@ -92,6 +95,7 @@ const Register = () => {
           <input
             onChange={userConfirmPasswordChange}
             value={userConfirmPassword}
+            name="userConfirmPassword"
             type="password"
             placeholder="Confirm Password"
             required

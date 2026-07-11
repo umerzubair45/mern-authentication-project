@@ -12,31 +12,35 @@ const Navbar = () => {
     navigate("/login", { replace: true });
   };
   return (
-    <nav className="navbar">
-      <div className="navbar-logo">
-        <Link to="/">MERN Auth</Link>
+    <header className="navbar">
+      <div className="container">
+        <Link className="logo" to="/">
+          MERN<span>Auth</span>
+        </Link>
+
+        <nav className="nav-links">
+          <Link to="/">Home</Link>
+
+          {user ? (
+            <>
+              <Link to="/dashboard">Dashboard</Link>
+
+              <Link to="/profile">Profile</Link>
+
+              <button className="logout-btn" onClick={logoutHandler}>
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login">Login</Link>
+
+              <Link to="/register">Register</Link>
+            </>
+          )}
+        </nav>
       </div>
-
-      <div className="navbar-links">
-        <Link to="/">Home</Link>
-
-        {user ? (
-          <>
-            <Link to="/dashboard">Dashboard</Link>
-            <Link to="/profile">Profile</Link>
-
-            <button className="logout-btn" onClick={logoutHandler}>
-              Logout
-            </button>
-          </>
-        ) : (
-          <>
-            <Link to="/login">Login</Link>
-            <Link to="/register">Register</Link>
-          </>
-        )}
-      </div>
-    </nav>
+    </header>
   );
 };
 

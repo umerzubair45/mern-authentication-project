@@ -1,0 +1,44 @@
+:root {
+  /* Colors */
+
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+
+  --success: #22c55e;
+
+  --danger: #ef4444;
+
+  --warning: #f59e0b;
+
+  --white: #ffffff;
+
+  --background: #f8fafc;
+
+  --surface: #ffffff;
+
+  --text: #111827;
+
+  --text-light: #6b7280;
+
+  --border: #e5e7eb;
+
+  /* Radius */
+
+  --radius-sm: 8px;
+
+  --radius-md: 12px;
+
+  --radius-lg: 18px;
+
+  /* Shadow */
+
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+
+  /* Transition */
+
+  --transition: all 0.3s ease;
+
+  /* Container */
+
+  --container-width: 1200px;
+}
