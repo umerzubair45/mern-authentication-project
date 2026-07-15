@@ -34,7 +34,7 @@ const register = async (req, res) => {
         message: "Email already exists",
       });
     }
-    const verificationToken = generateVerificationToken();
+    const verification = generateVerificationToken();
     // Hash password
     const hashedPassword = await bcrypt.hash(userPassword, 10);
 
@@ -45,14 +45,14 @@ const register = async (req, res) => {
       userPassword: hashedPassword,
       isVerified: false,
 
-      verificationToken,
+      verificationToken: verification.verificationToken,
 
-      verificationTokenExpires: Date.now() + 1000 * 60 * 60 * 24,
+      verificationTokenExpires: verification.verificationTokenExpires,
     });
 
     await user.save();
 
-    const verificationLink = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
+    const verificationLink = `${process.env.CLIENT_URL}/verify-email/${verification.verificationToken}`;
 
     await sendEmail({
       to: user.userEmail,

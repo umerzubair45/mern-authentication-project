@@ -1,50 +1,32 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
-import toast from "react-hot-toast";
-import "./forgotPassword.css";
 import Card from "../../components/Card/Card";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import useForm from "../../hooks/useForm";
+import useApi from "../../hooks/useApi";
 
 const ForgotPassword = () => {
-  const { formData, handleChange } = useForm({
+  const { formData, setFormData, handleChange } = useForm({
     userEmail: "",
   });
 
-  const [loading, setLoading] = useState(false);
+  const { loading, request } = useApi();
 
   const submitHandler = async (e) => {
     e.preventDefault();
 
-    setLoading(true);
+    const result = await request({
+      url: "/api/auth/forgot-password",
+      method: "POST",
+      body: formData,
+    });
 
-    try {
-      const response = await fetch(
-        "http://localhost:5051/api/auth/forgot-password",
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify(formData),
-        },
-      );
-
-      const result = await response.json();
-
-      if (response.ok) {
-        toast.success(result.message);
-      } else {
-        toast.error(result.message);
-      }
-    } catch (error) {
-      toast.error("Something went wrong.");
+    if (result.success) {
+      setFormData((prev) => ({
+        ...prev,
+        userEmail: "",
+      }));
     }
-
-    setLoading(false);
   };
 
   return (
