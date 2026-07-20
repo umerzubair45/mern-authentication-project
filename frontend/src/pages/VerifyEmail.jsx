@@ -10,6 +10,7 @@ const VerifyEmail = () => {
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+  const [result, setResult] = useState({});
 
   useEffect(() => {
     const verifyEmail = async () => {
@@ -24,6 +25,7 @@ const VerifyEmail = () => {
           setSuccess(result.message);
         } else {
           setError(result.message);
+          setResult(result);
         }
       } catch (err) {
         setError("Something went wrong.");
@@ -44,7 +46,11 @@ const VerifyEmail = () => {
 
       {error && <Alert type="error">{error}</Alert>}
 
-      <Link to="/login">Go To Login</Link>
+      {result.resendLink ? (
+        <Link to={result.resendLink}>Resend verification link</Link>
+      ) : (
+        <Link to="/login">Go To Login</Link>
+      )}
     </Card>
   );
 };

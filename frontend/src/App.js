@@ -11,7 +11,7 @@ import Navbar from "./components/Navbar";
 import VerifyEmail from "./pages/VerifyEmail";
 import ForgotPassword from "../src/pages/ForgotPassword/ForgotPassword";
 import ResetPassword from "../src/pages/ForgotPassword/ResetPassword";
-
+import ResendVerification from "./pages/ResendVerification/ResendVerification";
 function App() {
   return (
     <>
@@ -43,6 +43,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/resend-verification" element={<ResendVerification />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/verify-email/:token" element={<VerifyEmail />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />

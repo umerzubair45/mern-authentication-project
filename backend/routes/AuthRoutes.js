@@ -8,6 +8,7 @@ const {
   verifyEmail,
   forgotPassword,
   resetPassword,
+  resendVerification,
 } = require("../controllers/AuthController");
 
 const verifyToken = require("../middleware/AuthMiddleware");
@@ -18,5 +19,6 @@ router.get("/profile", verifyToken, profile);
 router.get("/verify-email/:token", verifyEmail);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
+router.post("/resend-verification", resendVerification);
 
 module.exports = router;

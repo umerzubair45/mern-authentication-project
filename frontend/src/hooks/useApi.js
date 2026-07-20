@@ -15,7 +15,6 @@ const useApi = () => {
     setLoading(true);
 
     try {
-      console.log("enter use api from forgetpassword");
       const response = await fetch(`${BASE_URL}${url}`, {
         method,
 
@@ -28,7 +27,13 @@ const useApi = () => {
       });
 
       const result = await response.json();
+      if (response.status === 401) {
+        localStorage.removeItem("token");
 
+        window.location.href = "/login";
+
+        return;
+      }
       if (response.ok) {
         toast.success(result.message);
 

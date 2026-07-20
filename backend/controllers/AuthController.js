@@ -44,12 +44,10 @@ const register = async (req, res) => {
       userEmail,
       userPassword: hashedPassword,
       isVerified: false,
-
-      verificationToken: verification.verificationToken,
-
-      verificationTokenExpires: verification.verificationTokenExpires,
+      //verificationToken: verification.verificationToken,
+      //verificationTokenExpires: verification.verificationTokenExpires,
     });
-
+    Object.assign(user, verification);
     await user.save();
 
     const verificationLink = `${process.env.CLIENT_URL}/verify-email/${verification.verificationToken}`;
@@ -296,12 +294,14 @@ const verifyEmail = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         message: "Invalid or expired verification link.",
+        resendLink: "/resend-verification",
       });
     }
 
     if (user.verificationTokenExpires < Date.now()) {
       return res.status(400).json({
         message: "Verification link has expired.",
+        resendLink: "/resend-verification",
       });
     }
 
@@ -323,6 +323,87 @@ const verifyEmail = async (req, res) => {
   }
 };
 
+const resendVerification = async (req, res) => {
+  try {
+    // Get Email
+    const userEmail = req.body.userEmail?.trim().toLowerCase();
+
+    // Validate Email
+    if (!userEmail) {
+      return res.status(400).json({
+        message: "Email is required.",
+      });
+    }
+
+    // Find User
+    const user = await User.findOne({ userEmail });
+
+    // Don't reveal whether email exists
+    if (!user) {
+      return res.status(200).json({
+        message:
+          "If an account with that email exists, we've sent a verification email.",
+      });
+    }
+
+    // Already verified
+    if (user.isVerified) {
+      return res.status(400).json({
+        message: "Your email is already verified. Please login.",
+      });
+    }
+
+    // Generate New Token
+    const verification = generateVerificationToken();
+
+    Object.assign(user, verification);
+
+    await user.save();
+
+    // Send Verification Email
+    const verificationLink = `${process.env.CLIENT_URL}/verify-email/${verification.verificationToken}`;
+
+    await sendEmail({
+      to: user.userEmail,
+      subject: "Verify Your Email",
+      html: `
+      <h2>Welcome!</h2>
+
+      <p>Thank you for registering.</p>
+
+      <p>Please click the button below to verify your email.</p>
+
+      <a
+        href="${verificationLink}"
+        style="
+          display:inline-block;
+          padding:12px 24px;
+          background:#2563eb;
+          color:white;
+          text-decoration:none;
+          border-radius:6px;
+        "
+      >
+        Verify Email
+      </a>
+
+      <p>This link expires in one minute.</p>
+  `,
+    });
+
+    return res.status(200).json({
+      message:
+        "If an account with that email exists, we've sent a verification email.",
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      message: "Something went wrong.",
+    });
+  }
+};
+
 const profile = (req, res) => {
   const userData = req.user;
   res.json({
@@ -337,4 +418,5 @@ module.exports = {
   verifyEmail,
   forgotPassword,
   resetPassword,
+  resendVerification,
 };
