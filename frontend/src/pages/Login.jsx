@@ -1,6 +1,5 @@
 import { useContext, useState } from "react";
 import "./Login.css";
-import toast from "react-hot-toast";
 import { useNavigate, Link } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
 import Card from "../components/Card/Card";
@@ -8,13 +7,15 @@ import Input from "../components/Input/Input";
 import Button from "../components/Button/Button";
 import Spinner from "../components/Spinner/Spinner";
 import useForm from "../hooks/useForm";
+import useApi from "../hooks/useApi";
 
 const Login = () => {
   const { formData, handleChange, resetForm } = useForm({
     userEmail: "",
     userPassword: "",
   });
-  const [loading, setLoading] = useState(false);
+  const { loading, request } = useApi();
+  //const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
@@ -55,16 +56,32 @@ const Login = () => {
     if (Object.keys(validationErrors).length > 0) {
       return;
     }
-    setLoading(true);
-    try {
+    //setLoading(true);
+    /*  try {
       const response = await fetch("http://localhost:5051/api/auth/login", {
         method: "POST",
         body: JSON.stringify(formData),
         headers: {
           "Content-Type": "application/json",
         },
-      });
+      });*/
 
+    const result = await request({
+      url: "/api/auth/login",
+      method: "POST",
+      body: formData,
+    });
+    if (result.success) {
+      login(result.data.user, result.data.token);
+      resetForm();
+      console.log(result.data.user);
+      if (result.data.user.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/dashboard");
+      }
+    }
+    /*
       const result = await response.json();
       if (response.ok) {
         toast.success(result.message);
@@ -79,7 +96,7 @@ const Login = () => {
       console.log(error);
     } finally {
       setLoading(false);
-    }
+    }*/
   };
 
   return (

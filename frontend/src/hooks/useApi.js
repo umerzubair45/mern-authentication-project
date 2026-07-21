@@ -11,15 +11,20 @@ const useApi = () => {
     method = "GET",
     body = null,
     headers = {},
+    showSuccessToast = true,
   }) => {
     setLoading(true);
 
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(`${BASE_URL}${url}`, {
         method,
 
         headers: {
           "Content-Type": "application/json",
+          ...(token && {
+            Authorization: `Bearer ${token}`,
+          }),
           ...headers,
         },
 
@@ -27,16 +32,21 @@ const useApi = () => {
       });
 
       const result = await response.json();
-      if (response.status === 401) {
+
+      if (response.status === 401 && result.logout) {
         localStorage.removeItem("token");
 
         window.location.href = "/login";
 
-        return;
+        return {
+          success: false,
+          data: result,
+        };
       }
       if (response.ok) {
-        toast.success(result.message);
-
+        if (showSuccessToast && result.message) {
+          toast.success(result.message);
+        }
         return {
           success: true,
           data: result,

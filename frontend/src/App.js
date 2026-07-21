@@ -12,6 +12,8 @@ import VerifyEmail from "./pages/VerifyEmail";
 import ForgotPassword from "../src/pages/ForgotPassword/ForgotPassword";
 import ResetPassword from "../src/pages/ForgotPassword/ResetPassword";
 import ResendVerification from "./pages/ResendVerification/ResendVerification";
+import AdminRoute from "./components/AdminRoute";
+import AdminDashboard from "./pages/AdminDashboard";
 function App() {
   return (
     <>
@@ -48,6 +50,14 @@ function App() {
         <Route path="/verify-email/:token" element={<VerifyEmail />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        />
       </Routes>
     </>
   );

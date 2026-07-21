@@ -5,7 +5,7 @@ import AuthContext from "./context/AuthContext";
 const Profile = () => {
   const { user } = useContext(AuthContext);
   const { loading } = useContext(AuthContext);
-
+  console.log(user);
   if (loading) {
     return <h2>Loading...</h2>;
   }

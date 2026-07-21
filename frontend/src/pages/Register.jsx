@@ -1,17 +1,18 @@
 import "./Register.css";
-import { useState } from "react";
+
 import useForm from "../hooks/useForm";
 import { useNavigate, Link } from "react-router-dom";
-import toast from "react-hot-toast";
+import Spinner from "../components/Spinner/Spinner";
 import Card from "../components/Card/Card";
 import Input from "../components/Input/Input";
 import Button from "../components/Button/Button";
 import Alert from "../components/Alert/Alert";
 import Form from "../components/Form/Form";
+import useApi from "../hooks/useApi";
 
 const Register = () => {
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { loading, request } = useApi();
   const { formData, handleChange, resetForm, errors, setErrors } = useForm({
     userName: "",
     userEmail: "",
@@ -103,25 +104,16 @@ const Register = () => {
 
   const formHandler = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    const response = await fetch("http://localhost:5051/api/auth/register", {
+
+    const result = await request({
+      url: "/api/auth/register",
       method: "POST",
-      body: JSON.stringify(formData),
-      headers: {
-        "Content-Type": "application/json",
-      },
+      body: formData,
     });
-    const result = await response.json();
-    if (response.ok) {
-      toast.success(result.message);
+    if (result.success) {
       resetForm();
-      setTimeout(() => {
-        navigate("/login");
-      }, 1500);
-    } else {
-      toast.error(result.message);
+      navigate("/login");
     }
-    setLoading(false);
   };
   return (
     <div className="register-page">
@@ -211,9 +203,18 @@ const Register = () => {
           <Button
             type="submit"
             loading={loading}
-            disabled={formData.userPassword !== formData.userConfirmPassword}
+            disabled={
+              loading || formData.userPassword !== formData.userConfirmPassword
+            }
           >
-            Create Account
+            {loading ? (
+              <>
+                <Spinner size="small" color="white" />
+                Creating Account...
+              </>
+            ) : (
+              "Create Account"
+            )}
           </Button>
         </Form>
 

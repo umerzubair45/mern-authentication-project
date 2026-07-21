@@ -271,6 +271,7 @@ const login = async (req, res) => {
         _id: user._id,
         userName: user.userName,
         userEmail: user.userEmail,
+        role: user.role,
       },
     });
   } catch (err) {
@@ -408,7 +409,8 @@ const profile = (req, res) => {
   const userData = req.user;
   res.json({
     message: "Welcome to Profile",
-    userData,
+    //userData,
+    userData: req.user,
   });
 };
 module.exports = {
