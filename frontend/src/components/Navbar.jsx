@@ -26,6 +26,7 @@ const Navbar = () => {
               <Link to="/dashboard">Dashboard</Link>
 
               <Link to="/profile">Profile</Link>
+              <p>{user.userName}</p>
 
               <button className="logout-btn" onClick={logoutHandler}>
                 Logout

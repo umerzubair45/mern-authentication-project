@@ -6,6 +6,7 @@ const adminDashboard = require("../controllers/AdminController");
 const {
   register,
   login,
+  refreshToken,
   profile,
   verifyEmail,
   forgotPassword,
@@ -17,6 +18,7 @@ const verifyToken = require("../middleware/AuthMiddleware");
 
 router.post("/register", register);
 router.post("/login", login);
+router.post("/refresh-token", refreshToken);
 router.get("/profile", verifyToken, profile);
 router.get("/verify-email/:token", verifyEmail);
 router.post("/forgot-password", forgotPassword);

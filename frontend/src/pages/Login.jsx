@@ -19,6 +19,7 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
+  const [showVerificationOption, setShowVerificationOption] = useState(false);
 
   const onInputChange = (e) => {
     handleChange(e);
@@ -71,15 +72,14 @@ const Login = () => {
       method: "POST",
       body: formData,
     });
-    if (result.success) {
-      login(result.data.user, result.data.token);
+    if (!result?.success && result?.data?.code === "EMAIL_NOT_VERIFIED") {
+      setShowVerificationOption(true);
+      return;
+    }
+    if (result?.success) {
+      login(result.data.user, result.data.accessToken);
       resetForm();
-      console.log(result.data.user);
-      if (result.data.user.role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/dashboard");
-      }
+      navigate(result.data.user.role === "admin" ? "/admin" : "/dashboard");
     }
     /*
       const result = await response.json();
@@ -131,7 +131,13 @@ const Login = () => {
             error={errors.userPassword}
             required
           />
+          {showVerificationOption && (
+            <div className="verification-message">
+              <p>Your email address has not been verified.</p>
 
+              <Link to="/resend-verification">Resend Verification Email</Link>
+            </div>
+          )}
           <div className="login-options">
             <label className="remember">
               <input type="checkbox" />

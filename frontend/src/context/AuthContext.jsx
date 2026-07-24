@@ -1,5 +1,5 @@
-import { createContext, useState } from "react";
-import { useEffect } from "react";
+import { createContext, useEffect, useState } from "react";
+import useApi from "../hooks/useApi";
 
 const AuthContext = createContext();
 
@@ -7,9 +7,11 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const { request } = useApi();
+
   // Login Function
-  const login = (userData, token) => {
-    localStorage.setItem("token", token);
+  const login = (userData, accessToken) => {
+    localStorage.setItem("token", accessToken);
     setUser(userData);
   };
 
@@ -18,6 +20,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("token");
     setUser(null);
   };
+
+  // Check if user is authenticated
   const checkAuth = async () => {
     const token = localStorage.getItem("token");
 
@@ -27,27 +31,28 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
-      const response = await fetch("http://localhost:5051/api/auth/profile", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const result = await request({
+        url: "/api/auth/profile",
+        method: "GET",
+        showSuccessToast: false,
       });
 
-      const result = await response.json();
-
-      if (response.ok) {
-        setUser(result.userData);
+      if (result?.success) {
+        setUser(result.data.userData);
       } else {
         localStorage.removeItem("token");
         setUser(null);
       }
     } catch (error) {
-      console.log(error);
+      console.error("Check Auth Error:", error);
+
+      localStorage.removeItem("token");
       setUser(null);
     } finally {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     checkAuth();
   }, []);

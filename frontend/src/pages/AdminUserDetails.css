@@ -1,0 +1,812 @@
+.admin-user-details-page {
+  min-height: calc(100vh - 70px);
+  padding: 40px;
+  background: #f7f8fc;
+}
+
+/* =========================
+   BREADCRUMB
+========================= */
+
+.user-details-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-bottom: 15px;
+
+  font-size: 13px;
+
+  color: #9ca3af;
+}
+
+.user-details-breadcrumb a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.user-details-breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+/* =========================
+   BACK BUTTON
+========================= */
+
+.back-button {
+  margin-bottom: 25px;
+
+  padding: 8px 0;
+
+  background: transparent;
+
+  border: none;
+
+  color: #2563eb;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.back-button:hover {
+  color: #1d4ed8;
+}
+
+/* =========================
+   PROFILE HEADER
+========================= */
+
+.user-profile-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  padding: 30px;
+
+  margin-bottom: 25px;
+
+  background: white;
+
+  border-radius: 16px;
+
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+}
+
+.profile-main {
+  display: flex;
+
+  align-items: center;
+
+  gap: 20px;
+}
+
+.large-user-avatar {
+  width: 75px;
+
+  height: 75px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #e8efff;
+
+  color: #2563eb;
+
+  font-size: 30px;
+
+  font-weight: 700;
+}
+
+.profile-info h1 {
+  margin: 0;
+
+  color: #1f2937;
+
+  font-size: 26px;
+}
+
+.profile-info p {
+  margin: 6px 0 12px;
+
+  color: #6b7280;
+
+  font-size: 14px;
+}
+
+.profile-badges {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  flex-wrap: wrap;
+}
+
+/* =========================
+   USER ID
+========================= */
+
+.profile-id {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-end;
+
+  gap: 6px;
+}
+
+.profile-id span {
+  font-size: 11px;
+
+  text-transform: uppercase;
+
+  color: #9ca3af;
+
+  letter-spacing: 0.5px;
+}
+
+.profile-id strong {
+  max-width: 250px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  color: #6b7280;
+
+  font-size: 12px;
+
+  font-weight: 500;
+}
+
+/* =========================
+   GRID
+========================= */
+
+.user-details-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.5fr)
+    minmax(300px, 1fr);
+
+  gap: 25px;
+}
+
+/* =========================
+   CARD
+========================= */
+
+.details-card {
+  background: white;
+
+  border-radius: 16px;
+
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+
+  overflow: hidden;
+}
+
+.details-card-header {
+  padding: 25px 30px;
+
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.details-card-header h2 {
+  margin: 0;
+
+  color: #1f2937;
+
+  font-size: 19px;
+}
+
+.details-card-header p {
+  margin: 6px 0 0;
+
+  color: #6b7280;
+
+  font-size: 13px;
+}
+
+/* =========================
+   DETAILS
+========================= */
+
+.details-list {
+  padding: 10px 30px;
+}
+
+.detail-item {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 20px;
+
+  padding: 18px 0;
+
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  color: #6b7280;
+
+  font-size: 13px;
+}
+
+.detail-value {
+  color: #1f2937;
+
+  font-size: 14px;
+
+  font-weight: 500;
+
+  text-align: right;
+}
+
+.user-id-value {
+  max-width: 220px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+/* =========================
+   ROLE BADGES
+========================= */
+
+.role-badge {
+  display: inline-block;
+
+  padding: 5px 12px;
+
+  border-radius: 20px;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  text-transform: capitalize;
+}
+
+.role-badge.admin {
+  background: #fef3c7;
+
+  color: #92400e;
+}
+
+.role-badge.manager {
+  background: #ede9fe;
+
+  color: #6d28d9;
+}
+
+.role-badge.user {
+  background: #e0f2fe;
+
+  color: #0369a1;
+}
+
+/* =========================
+   STATUS
+========================= */
+
+.status {
+  font-size: 13px;
+
+  font-weight: 500;
+}
+
+.status span {
+  margin-right: 6px;
+}
+
+.status.verified {
+  color: #16a34a;
+}
+
+.status.unverified {
+  color: #dc2626;
+}
+
+/* =========================
+   ACCOUNT STATUS
+========================= */
+
+.account-status-box {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 15px;
+
+  margin: 25px 30px;
+
+  padding: 18px;
+
+  border-radius: 10px;
+
+  background: #f9fafb;
+}
+
+.status-icon {
+  width: 38px;
+
+  height: 38px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 50%;
+
+  font-weight: 700;
+}
+
+.status-icon.success {
+  background: #dcfce7;
+
+  color: #16a34a;
+}
+
+.status-icon.warning {
+  background: #fee2e2;
+
+  color: #dc2626;
+}
+
+.account-status-box h3 {
+  margin: 0 0 5px;
+
+  color: #1f2937;
+
+  font-size: 14px;
+}
+
+.account-status-box p {
+  margin: 0;
+
+  color: #6b7280;
+
+  font-size: 12px;
+
+  line-height: 1.6;
+}
+
+/* =========================
+   ACTIONS
+========================= */
+
+.user-actions {
+  padding: 0 30px 30px;
+}
+
+.user-actions h3 {
+  margin: 0 0 15px;
+
+  color: #374151;
+
+  font-size: 14px;
+}
+
+.danger-action-btn {
+  width: 100%;
+
+  padding: 10px;
+
+  margin-bottom: 10px;
+
+  border-radius: 8px;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  cursor: not-allowed;
+}
+.secondary-action-btn {
+  display: block;
+
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 10px;
+
+  margin-bottom: 10px;
+
+  border-radius: 8px;
+
+  border: 1px solid #dbeafe;
+
+  background: #eff6ff;
+
+  color: #2563eb;
+
+  text-align: center;
+
+  text-decoration: none;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.secondary-action-btn:hover {
+  background: #2563eb;
+
+  color: white;
+}
+
+.danger-action-btn {
+  border: 1px solid #fecaca;
+
+  background: #fef2f2;
+
+  color: #dc2626;
+}
+
+.user-actions small {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #9ca3af;
+
+  font-size: 11px;
+
+  line-height: 1.5;
+}
+
+/* =========================
+   LOADING
+========================= */
+
+.user-details-loading {
+  min-height: 500px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  color: #6b7280;
+}
+
+.loading-spinner {
+  width: 35px;
+
+  height: 35px;
+
+  margin-bottom: 15px;
+
+  border: 3px solid #e5e7eb;
+
+  border-top-color: #2563eb;
+
+  border-radius: 50%;
+
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================
+   NOT FOUND
+========================= */
+
+.user-not-found {
+  max-width: 500px;
+
+  margin: 80px auto;
+
+  padding: 50px 30px;
+
+  background: white;
+
+  border-radius: 16px;
+
+  text-align: center;
+
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+}
+
+.not-found-icon {
+  font-size: 45px;
+
+  margin-bottom: 15px;
+}
+
+.user-not-found h2 {
+  margin: 0;
+
+  color: #1f2937;
+}
+
+.user-not-found p {
+  margin: 10px 0 25px;
+
+  color: #6b7280;
+
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+.back-users-btn {
+  display: inline-block;
+
+  padding: 10px 18px;
+
+  border-radius: 8px;
+
+  background: #2563eb;
+
+  color: white;
+
+  text-decoration: none;
+
+  font-size: 13px;
+
+  font-weight: 600;
+}
+
+.back-users-btn:hover {
+  background: #1d4ed8;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+  .user-details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .admin-user-details-page {
+    padding: 20px;
+  }
+
+  .user-profile-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 25px;
+  }
+
+  .profile-id {
+    align-items: flex-start;
+  }
+
+  .profile-id strong {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 500px) {
+  .profile-main {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .detail-item {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 7px;
+  }
+
+  .detail-value {
+    text-align: left;
+  }
+}
+/* =========================
+   ROLE MANAGEMENT
+========================= */
+
+.role-management {
+  padding: 25px 30px;
+
+  border-top: 1px solid #f0f0f0;
+}
+
+.role-management-header {
+  margin-bottom: 20px;
+}
+
+.role-management-header h3 {
+  margin: 0;
+
+  color: #374151;
+
+  font-size: 15px;
+
+  font-weight: 600;
+}
+
+.role-management-header p {
+  margin: 6px 0 0;
+
+  color: #6b7280;
+
+  font-size: 12px;
+
+  line-height: 1.5;
+}
+
+/* =========================
+   ROLE LABEL
+========================= */
+
+.role-management label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #374151;
+
+  font-size: 12px;
+
+  font-weight: 600;
+}
+
+/* =========================
+   ROLE SELECT
+========================= */
+
+.role-management select {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 11px 14px;
+
+  border: 1px solid #d1d5db;
+
+  border-radius: 8px;
+
+  background: white;
+
+  color: #374151;
+
+  font-size: 13px;
+
+  outline: none;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.role-management select:hover {
+  border-color: #9ca3af;
+}
+
+.role-management select:focus {
+  border-color: #2563eb;
+
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.role-management select:disabled {
+  background: #f3f4f6;
+
+  color: #9ca3af;
+
+  cursor: not-allowed;
+
+  border-color: #e5e7eb;
+}
+
+/* =========================
+   OWN ROLE WARNING
+========================= */
+
+.role-warning {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 8px;
+
+  margin-top: 12px;
+
+  padding: 10px 12px;
+
+  border-radius: 8px;
+
+  background: #fffbeb;
+
+  border: 1px solid #fde68a;
+}
+
+.role-warning span {
+  font-size: 13px;
+}
+
+.role-warning p {
+  margin: 0;
+
+  color: #92400e;
+
+  font-size: 11px;
+
+  line-height: 1.5;
+}
+
+/* =========================
+   ROLE INFORMATION
+========================= */
+
+.role-info-message {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 8px;
+
+  margin-top: 12px;
+
+  padding: 10px 12px;
+
+  border-radius: 8px;
+
+  background: #eff6ff;
+
+  border: 1px solid #dbeafe;
+}
+
+.role-info-message span {
+  font-size: 13px;
+}
+
+.role-info-message p {
+  margin: 0;
+
+  color: #1e40af;
+
+  font-size: 11px;
+
+  line-height: 1.5;
+}

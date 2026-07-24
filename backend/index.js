@@ -8,13 +8,18 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const verifyToken = require("./middleware/AuthMiddleware");
 const authRoutes = require("./routes/AuthRoutes");
+const cookieParser = require("cookie-parser");
+const userRoutes = require("./routes/userRoutes");
 
 const app = express();
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cors());
+
+app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 app.listen(5051, () => {
   console.log("server is running on port number:5051");
 });

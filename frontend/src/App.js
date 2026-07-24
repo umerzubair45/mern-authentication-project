@@ -14,6 +14,8 @@ import ResetPassword from "../src/pages/ForgotPassword/ResetPassword";
 import ResendVerification from "./pages/ResendVerification/ResendVerification";
 import AdminRoute from "./components/AdminRoute";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminUserDetails from "./pages/AdminUserDetails";
+import AdminEditUser from "./pages/AdminEditUser";
 function App() {
   return (
     <>
@@ -55,6 +57,22 @@ function App() {
           element={
             <AdminRoute>
               <AdminDashboard />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/users/:id"
+          element={
+            <AdminRoute>
+              <AdminUserDetails />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/users/:id/edit"
+          element={
+            <AdminRoute>
+              <AdminEditUser />
             </AdminRoute>
           }
         />

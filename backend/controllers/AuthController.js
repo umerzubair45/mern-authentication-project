@@ -5,6 +5,7 @@ const GenerateToken = require("../utils/GenerateToken");
 const generateVerificationToken = require("../utils/GenerateVerificationToken");
 const sendEmail = require("../utils/sendEmail");
 const crypto = require("crypto");
+const { generateAccessToken, generateRefreshToken } = require("../utils/token");
 
 const register = async (req, res) => {
   try {
@@ -252,6 +253,7 @@ const login = async (req, res) => {
     if (!user.isVerified) {
       return res.status(403).json({
         message: "Please verify your email before logging in.",
+        code: "EMAIL_NOT_VERIFIED",
       });
     }
 
@@ -262,13 +264,23 @@ const login = async (req, res) => {
         message: "Invalid Password",
       });
     }
-    const token = GenerateToken(user);
+    //const token = GenerateToken(user);
+
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
     res.status(200).json({
       message: "Login Successful",
-      token,
+      accessToken,
       user: {
-        _id: user._id,
+        userId: user._id,
         userName: user.userName,
         userEmail: user.userEmail,
         role: user.role,
@@ -279,6 +291,47 @@ const login = async (req, res) => {
 
     res.status(500).json({
       message: "Internal Server Error",
+    });
+  }
+};
+
+const refreshToken = async (req, res) => {
+  try {
+    // Get refresh token from HTTP-only cookie
+    const token = req.cookies.refreshToken;
+
+    if (!token) {
+      return res.status(401).json({
+        message: "Refresh token not found.",
+      });
+    }
+
+    // Verify refresh token
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+
+    // Find user
+    const user = await User.findById(decoded.userId).select("-userPassword");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found.",
+      });
+    }
+
+    // Generate new access token
+    //const accessToken = generateAccessToken(user);
+    const newAccessToken = GenerateToken({
+      _id: decoded.userId,
+    });
+    return res.status(200).json({
+      message: "Access token refreshed successfully.",
+      accessToken: newAccessToken,
+    });
+  } catch (error) {
+    console.error("Refresh Token Error:", error);
+
+    return res.status(401).json({
+      message: "Invalid or expired refresh token.",
     });
   }
 };
@@ -405,13 +458,35 @@ const resendVerification = async (req, res) => {
   }
 };
 
-const profile = (req, res) => {
-  const userData = req.user;
-  res.json({
-    message: "Welcome to Profile",
-    //userData,
-    userData: req.user,
-  });
+const profile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).select(
+      "userName userEmail role",
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Welcome to Profile",
+
+      userData: {
+        userId: user._id,
+        userName: user.userName,
+        userEmail: user.userEmail,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
 };
 module.exports = {
   register,
@@ -421,4 +496,5 @@ module.exports = {
   forgotPassword,
   resetPassword,
   resendVerification,
+  refreshToken,
 };
