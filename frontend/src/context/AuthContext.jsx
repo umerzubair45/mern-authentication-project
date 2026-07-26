@@ -16,9 +16,21 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Logout Function
-  const logout = () => {
-    localStorage.removeItem("token");
-    setUser(null);
+  const logout = async () => {
+    try {
+      await request({
+        url: "/api/auth/logout",
+        method: "POST",
+        showSuccessToast: false,
+        retry: false,
+      });
+    } catch (error) {
+      console.error("Logout Error:", error);
+    } finally {
+      // Always clear frontend authentication
+      localStorage.removeItem("token");
+      setUser(null);
+    }
   };
 
   // Check if user is authenticated

@@ -4,36 +4,37 @@ import { useParams, Link } from "react-router-dom";
 import Spinner from "../components/Spinner/Spinner";
 import Alert from "../components/Alert/Alert";
 import Card from "../components/Card/Card";
+import useApi from "../hooks/useApi";
 
 const VerifyEmail = () => {
   const { token } = useParams();
-  const [loading, setLoading] = useState(true);
+
+  const { loading, request } = useApi();
+
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [result, setResult] = useState({});
 
   useEffect(() => {
     const verifyEmail = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:5051/api/auth/verify-email/${token}`,
-        );
+      const result = await request({
+        url: `/api/auth/verify-email/${token}`,
+        method: "GET",
+        showSuccessToast: false,
+      });
 
-        const result = await response.json();
-
-        if (response.ok) {
-          setSuccess(result.message);
-        } else {
-          setError(result.message);
-          setResult(result);
-        }
-      } catch (err) {
-        setError("Something went wrong.");
-      } finally {
-        setLoading(false);
+      if (result?.success) {
+        setSuccess(result.data.message);
+        setError("");
+      } else {
+        setError(result?.data?.message || "Something went wrong.");
+        setResult(result?.data || {});
       }
     };
-    verifyEmail();
+
+    if (token) {
+      verifyEmail();
+    }
   }, [token]);
 
   if (loading) {
@@ -46,10 +47,12 @@ const VerifyEmail = () => {
 
       {error && <Alert type="error">{error}</Alert>}
 
-      {result.resendLink ? (
-        <Link to={result.resendLink}>Resend verification link</Link>
+      {error && result?.code === "VERIFICATION_TOKEN_EXPIRED" ? (
+        <Link to="/resend-verification">Resend Verification Email</Link>
       ) : (
-        <Link to="/login">Go To Login</Link>
+        <Link to="/login" replace>
+          Go To Login
+        </Link>
       )}
     </Card>
   );

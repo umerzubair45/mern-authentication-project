@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
-import AuthContext from "../context/AuthContext";
+import AuthContext from "../../context/AuthContext";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import useApi from "../hooks/useApi";
+import useApi from "../../hooks/useApi";
 import "./AdminUserDetails.css";
 
 const AdminUserDetails = () => {

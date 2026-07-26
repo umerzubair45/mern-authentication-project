@@ -1,5 +1,12 @@
 const User = require("../models/User");
 const mongoose = require("mongoose");
+const generateVerificationToken = require("../utils/generateVerificationToken");
+const {
+  newEmailVerificationTemplate,
+  oldEmailNotificationTemplate,
+} = require("../utils/emailTemplates");
+
+const sendEmail = require("../utils/sendEmail");
 
 const getAllUsers = async (req, res) => {
   try {
@@ -50,10 +57,16 @@ const getUserById = async (req, res) => {
     });
   }
 };
+
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
+
     const { userName, userEmail } = req.body;
+
+    // =========================
+    // FIND USER
+    // =========================
 
     const user = await User.findById(id);
 
@@ -63,30 +76,131 @@ const updateUser = async (req, res) => {
       });
     }
 
-    // Check whether email is being changed
-    const emailChanged =
-      userEmail &&
-      userEmail.toLowerCase().trim() !== user.userEmail.toLowerCase().trim();
+    // =========================
+    // CHECK EMAIL CHANGE
+    // =========================
 
-    // Update username
-    if (userName) {
-      user.userName = userName;
-    }
+    const newEmail = userEmail?.trim().toLowerCase();
 
-    // Update email
+    const oldEmail = user.userEmail.toLowerCase();
+
+    const emailChanged = newEmail && newEmail !== oldEmail;
+
+    // =========================
+    // CHECK NEW EMAIL EXISTS
+    // =========================
+
     if (emailChanged) {
-      user.userEmail = userEmail.toLowerCase().trim();
+      const existingUser = await User.findOne({
+        userEmail: newEmail,
+        _id: { $ne: id },
+      });
 
-      // New email must be verified
-      user.isVerified = false;
+      if (existingUser) {
+        return res.status(409).json({
+          message: "This email address is already registered.",
+        });
+      }
     }
+
+    // =========================
+    // UPDATE USERNAME
+    // =========================
+
+    if (userName) {
+      user.userName = userName.trim();
+    }
+
+    // =========================
+    // EMAIL CHANGE
+    // =========================
+
+    if (emailChanged) {
+      // Update email
+      user.userEmail = newEmail;
+
+      // New email is not verified
+      user.isVerified = false;
+
+      // Generate new verification token
+      const { verificationToken, verificationTokenExpires } =
+        generateVerificationToken();
+
+      // Save verification token
+      user.verificationToken = verificationToken;
+      user.verificationTokenExpires = verificationTokenExpires;
+      // Verification URL
+      const verificationLink = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
+
+      // =========================
+      // SAVE USER
+      // =========================
+
+      await user.save();
+
+      // =========================
+      // SEND EMAIL TO NEW EMAIL
+      // =========================
+
+      const verificationEmail = newEmailVerificationTemplate({
+        userName: user.userName,
+        verificationLink,
+      });
+
+      await sendEmail({
+        to: newEmail,
+
+        subject: "Verify Your New Email Address",
+
+        html: verificationEmail,
+      });
+
+      // =========================
+      // SEND SECURITY EMAIL
+      // TO OLD EMAIL
+      // =========================
+
+      const securityEmail = oldEmailNotificationTemplate({
+        userName: user.userName,
+        newEmail,
+      });
+
+      // Don't fail user update if
+      // security notification fails
+      try {
+        await sendEmail({
+          to: oldEmail,
+
+          subject: "Your Account Email Address Was Changed",
+
+          html: securityEmail,
+        });
+      } catch (emailError) {
+        console.error("Old email notification failed:", emailError);
+      }
+
+      return res.status(200).json({
+        message:
+          "User email updated. Verification email sent to the new address.",
+
+        user: {
+          _id: user._id,
+          userName: user.userName,
+          userEmail: user.userEmail,
+          role: user.role,
+          isVerified: user.isVerified,
+        },
+      });
+    }
+
+    // =========================
+    // SAVE USERNAME ONLY
+    // =========================
 
     await user.save();
 
     return res.status(200).json({
-      message: emailChanged
-        ? "User updated. New email requires verification."
-        : "User updated successfully.",
+      message: "User updated successfully.",
 
       user: {
         _id: user._id,

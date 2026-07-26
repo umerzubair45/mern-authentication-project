@@ -135,7 +135,9 @@ const Login = () => {
             <div className="verification-message">
               <p>Your email address has not been verified.</p>
 
-              <Link to="/resend-verification">Resend Verification Email</Link>
+              <Link to="/resend-verification" replace>
+                Resend Verification Email
+              </Link>
             </div>
           )}
           <div className="login-options">

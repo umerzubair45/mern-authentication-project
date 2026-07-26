@@ -3,7 +3,7 @@ const crypto = require("crypto");
 const generateVerificationToken = () => {
   return {
     verificationToken: crypto.randomBytes(32).toString("hex"),
-    verificationTokenExpires: Date.now() + 60 * 60 * 1000,
+    verificationTokenExpires: new Date(Date.now() + 15 * 60 * 1000),
   };
 };
 

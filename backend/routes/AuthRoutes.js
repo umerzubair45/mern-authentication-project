@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const requireAdmin = require("../middleware/AdminMiddleware");
 const adminDashboard = require("../controllers/AdminController");
+const validate = require("../middleware/validate");
+const { registerSchema } = require("../schemas/authSchema");
 
 const {
   register,
@@ -12,11 +14,12 @@ const {
   forgotPassword,
   resetPassword,
   resendVerification,
+  logout,
 } = require("../controllers/AuthController");
 
 const verifyToken = require("../middleware/AuthMiddleware");
 
-router.post("/register", register);
+router.post("/register", validate(registerSchema), register);
 router.post("/login", login);
 router.post("/refresh-token", refreshToken);
 router.get("/profile", verifyToken, profile);
@@ -25,5 +28,6 @@ router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
 router.post("/resend-verification", resendVerification);
 router.get("/admin-dashboard", verifyToken, requireAdmin, adminDashboard);
+router.post("/logout", logout);
 
 module.exports = router;

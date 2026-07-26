@@ -6,6 +6,11 @@ const generateVerificationToken = require("../utils/GenerateVerificationToken");
 const sendEmail = require("../utils/sendEmail");
 const crypto = require("crypto");
 const { generateAccessToken, generateRefreshToken } = require("../utils/token");
+const {
+  registerTemplate,
+  passwordResetTemplate,
+  resendVerificationTemplate,
+} = require("../utils/emailTemplates");
 
 const register = async (req, res) => {
   try {
@@ -17,7 +22,11 @@ const register = async (req, res) => {
         message: "All fields are required",
       });
     }
-
+    if (userPassword.length < 8) {
+      return res.status(400).json({
+        message: "Password must be at least 8 characters.",
+      });
+    }
     // Compare passwords
     if (userPassword !== userConfirmPassword) {
       return res.status(400).json({
@@ -56,29 +65,7 @@ const register = async (req, res) => {
     await sendEmail({
       to: user.userEmail,
       subject: "Verify Your Email",
-      html: `
-      <h2>Welcome!</h2>
-
-      <p>Thank you for registering.</p>
-
-      <p>Please click the button below to verify your email.</p>
-
-      <a
-        href="${verificationLink}"
-        style="
-          display:inline-block;
-          padding:12px 24px;
-          background:#2563eb;
-          color:white;
-          text-decoration:none;
-          border-radius:6px;
-        "
-      >
-        Verify Email
-      </a>
-
-      <p>This link expires in 24 hours.</p>
-  `,
+      html: registerTemplate(verificationLink),
     });
 
     res.status(201).json({
@@ -115,45 +102,22 @@ const forgotPassword = async (req, res) => {
       });
     }
 
+    const { verificationToken, verificationTokenExpires } =
+      generateVerificationToken();
     // Generate reset token
-    const resetPasswordToken = crypto.randomBytes(32).toString("hex");
+    const resetPasswordToken = verificationToken;
     const resetLink = `${process.env.CLIENT_URL}/reset-password/${resetPasswordToken}`;
     // Save token and expiry
     user.resetPasswordToken = resetPasswordToken;
-    const RESET_PASSWORD_EXPIRY = 15 * 60 * 1000;
-    user.resetPasswordTokenExpires = Date.now() + RESET_PASSWORD_EXPIRY;
+    user.resetPasswordTokenExpires = verificationTokenExpires;
 
     await user.save();
-
+    const userName = user.userName;
     // Send email
     await sendEmail({
       to: user.userEmail,
       subject: "Reset Your Password",
-      html: `
-        <h2>Password Reset</h2>
-
-        <p>Hello ${user.userName},</p>
-
-        <p>Click the button below to reset your password.</p>
-
-        <a
-          href="${resetLink}"
-          style="
-            background:#2563eb;
-            color:white;
-            padding:12px 20px;
-            text-decoration:none;
-            border-radius:6px;
-            display:inline-block;
-          "
-        >
-          Reset Password
-        </a>
-
-        <p>This link expires in <strong>15 minutes</strong>.</p>
-
-        <p>If you didn't request this, you can safely ignore this email.</p>
-      `,
+      html: passwordResetTemplate({ userName: user.userName, resetLink }),
     });
 
     return res.status(200).json({
@@ -182,6 +146,12 @@ const resetPassword = async (req, res) => {
       });
     }
 
+    if (userPassword.length < 8) {
+      return res.status(400).json({
+        message: "Password must be at least 8 characters.",
+      });
+    }
+
     // Check password match
     if (userPassword !== userConfirmPassword) {
       return res.status(400).json({
@@ -201,7 +171,13 @@ const resetPassword = async (req, res) => {
     }
 
     // Check token expiry
-    if (user.resetPasswordTokenExpires < Date.now()) {
+    if (
+      !user.resetPasswordTokenExpires ||
+      user.resetPasswordTokenExpires < new Date()
+    ) {
+      user.resetPasswordToken = null;
+      user.resetPasswordTokenExpires = null;
+      await user.save();
       return res.status(400).json({
         message: "Reset link has expired.",
       });
@@ -348,14 +324,14 @@ const verifyEmail = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         message: "Invalid or expired verification link.",
-        resendLink: "/resend-verification",
+        code: "VERIFICATION_TOKEN_EXPIRED",
       });
     }
 
     if (user.verificationTokenExpires < Date.now()) {
       return res.status(400).json({
         message: "Verification link has expired.",
-        resendLink: "/resend-verification",
+        code: "VERIFICATION_TOKEN_EXPIRED",
       });
     }
 
@@ -420,29 +396,7 @@ const resendVerification = async (req, res) => {
     await sendEmail({
       to: user.userEmail,
       subject: "Verify Your Email",
-      html: `
-      <h2>Welcome!</h2>
-
-      <p>Thank you for registering.</p>
-
-      <p>Please click the button below to verify your email.</p>
-
-      <a
-        href="${verificationLink}"
-        style="
-          display:inline-block;
-          padding:12px 24px;
-          background:#2563eb;
-          color:white;
-          text-decoration:none;
-          border-radius:6px;
-        "
-      >
-        Verify Email
-      </a>
-
-      <p>This link expires in one minute.</p>
-  `,
+      html: resendVerificationTemplate(verificationLink),
     });
 
     return res.status(200).json({
@@ -454,6 +408,25 @@ const resendVerification = async (req, res) => {
 
     return res.status(500).json({
       message: "Something went wrong.",
+    });
+  }
+};
+const logout = async (req, res) => {
+  try {
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+
+    return res.status(200).json({
+      message: "Logout successful.",
+    });
+  } catch (error) {
+    console.error("Logout Error:", error);
+
+    return res.status(500).json({
+      message: "Internal Server Error.",
     });
   }
 };
@@ -497,4 +470,5 @@ module.exports = {
   resetPassword,
   resendVerification,
   refreshToken,
+  logout,
 };

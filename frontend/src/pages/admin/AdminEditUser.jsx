@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import useApi from "../hooks/useApi";
+import useApi from "../../hooks/useApi";
 import "./AdminEditUser.css";
 
 const AdminEditUser = () => {
