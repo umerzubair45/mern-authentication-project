@@ -25,6 +25,17 @@ const registerSchema = z
     path: ["userConfirmPassword"],
   });
 
+const loginSchema = z.object({
+  userEmail: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email("Please enter a valid email address."),
+
+  userPassword: z.string().min(8, "Password must be at least 8 characters."),
+});
+
 module.exports = {
   registerSchema,
+  loginSchema,
 };

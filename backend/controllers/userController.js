@@ -5,10 +5,10 @@ const {
   newEmailVerificationTemplate,
   oldEmailNotificationTemplate,
 } = require("../utils/emailTemplates");
-
+const AppError = require("../utils/AppError");
 const sendEmail = require("../utils/sendEmail");
 
-const getAllUsers = async (req, res) => {
+const getAllUsers = async (req, res, next) => {
   try {
     const users = await User.find({
       _id: { $ne: req.user.userId },
@@ -21,28 +21,22 @@ const getAllUsers = async (req, res) => {
   } catch (error) {
     console.error("Get users error:", error);
 
-    return res.status(500).json({
-      message: "Internal Server Error",
-    });
+    next(error);
   }
 };
 
-const getUserById = async (req, res) => {
+const getUserById = async (req, res, next) => {
   try {
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({
-        message: "Invalid user ID",
-      });
+      throw new AppError("Invalid user ID", 400);
     }
     const user = await User.findById(id).select(
       "-userPassword -verificationToken -resetPasswordToken",
     );
 
     if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
+      throw new AppError("User not found", 404);
     }
 
     return res.status(200).json({
@@ -51,14 +45,11 @@ const getUserById = async (req, res) => {
     });
   } catch (error) {
     console.error("Get user error:", error);
-
-    return res.status(500).json({
-      message: "Internal Server Error",
-    });
+    next(error);
   }
 };
 
-const updateUser = async (req, res) => {
+const updateUser = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -71,9 +62,7 @@ const updateUser = async (req, res) => {
     const user = await User.findById(id);
 
     if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
+      throw new AppError("User not found", 404);
     }
 
     // =========================
@@ -97,9 +86,7 @@ const updateUser = async (req, res) => {
       });
 
       if (existingUser) {
-        return res.status(409).json({
-          message: "This email address is already registered.",
-        });
+        throw new AppError("This email address is already registered.", 409);
       }
     }
 
@@ -212,48 +199,37 @@ const updateUser = async (req, res) => {
     });
   } catch (error) {
     console.error("Update user error:", error);
-
-    return res.status(500).json({
-      message: "Internal Server Error",
-    });
+    next(error);
   }
 };
 
-const updateUserRole = async (req, res) => {
+const updateUserRole = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { role } = req.body;
 
     // Validate MongoDB ID
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({
-        message: "Invalid user ID",
-      });
+      throw new AppError("Invalid user ID", 400);
     }
 
     // Validate role
     const allowedRoles = ["user", "manager", "admin"];
 
     if (!allowedRoles.includes(role)) {
-      return res.status(400).json({
-        message: "Invalid role",
-      });
+      throw new AppError("Invalid role", 400);
     }
 
     // Find user
     const user = await User.findById(id);
 
     if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
+      throw new AppError("User not found", 400);
     }
 
     // Prevent admin from changing their own role
     if (req.user.userId === id) {
-      return res.status(403).json({
-        message: "You cannot change your own role",
-      });
+      throw new AppError("You cannot change your own role", 403);
     }
 
     // Update role
@@ -273,10 +249,7 @@ const updateUserRole = async (req, res) => {
     });
   } catch (error) {
     console.error("Update user role error:", error);
-
-    return res.status(500).json({
-      message: "Internal Server Error",
-    });
+    next(error);
   }
 };
 module.exports = {

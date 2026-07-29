@@ -10,16 +10,32 @@ const verifyToken = require("./middleware/AuthMiddleware");
 const authRoutes = require("./routes/AuthRoutes");
 const cookieParser = require("cookie-parser");
 const userRoutes = require("./routes/userRoutes");
+const helmet = require("helmet");
+const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(helmet());
+app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+app.use(express.json({ limit: "10kb" }));
+app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+
+app.use((err, req, res, next) => {
+  if (err.type === "entity.too.large") {
+    return res.status(413).json({
+      success: false,
+      message: "Request payload is too large.",
+    });
+  }
+
+  next(err);
+});
+
+app.use(errorHandler);
 app.listen(5051, () => {
   console.log("server is running on port number:5051");
 });
@@ -129,7 +145,7 @@ app.post("/login", async (req, res) => {
       message: "Internal Server Error",
     });
   }
-});*/
+});
 app.get("/profile", verifyToken, (req, res) => {
   console.log(req.user);
   res.json({
@@ -137,4 +153,4 @@ app.get("/profile", verifyToken, (req, res) => {
   });
 });
 
-//app.use(authRoutes);
+//app.use(authRoutes);*/
