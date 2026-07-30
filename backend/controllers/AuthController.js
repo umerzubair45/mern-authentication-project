@@ -13,6 +13,7 @@ const {
 } = require("../utils/emailTemplates");
 const AppError = require("../utils/AppError");
 const { error } = require("console");
+const emailQueue = require("../queues/emailQueue");
 
 const register = async (req, res, next) => {
   try {
@@ -44,12 +45,30 @@ const register = async (req, res, next) => {
 
     const verificationLink = `${process.env.CLIENT_URL}/verify-email/${verification.verificationToken}`;
 
-    await sendEmail({
+    /*  await sendEmail({
       to: user.userEmail,
       subject: "Verify Your Email",
-      html: registerTemplate(verificationLink),
-    });
+      html: registerTemplate({ userName: user.userName, verificationLink }),
+    });*/
 
+    await emailQueue.add(
+      "send-verification-email",
+      {
+        to: user.userEmail,
+        userName: user.userName,
+        verificationLink,
+      },
+      {
+        attempts: 3,
+        backoff: {
+          type: "exponential",
+          delay: 5000,
+        },
+        removeOnComplete: 100,
+        removeOnFail: 50,
+      },
+    );
+    console.log("Job added in QUEUE");
     res.status(201).json({
       message: "Registration successful. Please verify your email.",
     });

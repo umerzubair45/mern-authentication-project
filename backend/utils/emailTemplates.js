@@ -99,9 +99,9 @@ const oldEmailNotificationTemplate = ({ userName, newEmail }) => {
   `;
 };
 
-const registerTemplate = (verificationLink) => {
+const registerTemplate = ({ userName, verificationLink }) => {
   return `
-      <h2>Welcome!</h2>
+      <h2>Welcome!${userName}</h2>
 
       <p>Thank you for registering.</p>
 

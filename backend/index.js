@@ -12,6 +12,7 @@ const cookieParser = require("cookie-parser");
 const userRoutes = require("./routes/userRoutes");
 const helmet = require("helmet");
 const errorHandler = require("./middleware/errorHandler");
+require("./workers/emailWorker");
 
 const app = express();
 app.use(helmet());
