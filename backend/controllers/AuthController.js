@@ -1,7 +1,7 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const GenerateToken = require("../utils/GenerateToken");
+//const GenerateToken = require("../utils/GenerateToken");
 const generateVerificationToken = require("../utils/GenerateVerificationToken");
 const sendEmail = require("../utils/sendEmail");
 const crypto = require("crypto");
@@ -267,9 +267,10 @@ const refreshToken = async (req, res, next) => {
 
     // Generate new access token
     //const accessToken = generateAccessToken(user);
-    const newAccessToken = GenerateToken({
-      _id: decoded.userId,
-    });
+    // const newAccessToken = GenerateToken({
+    //   _id: decoded.userId,
+    //});
+    const newAccessToken = generateAccessToken(user);
     return res.status(200).json({
       message: "Access token refreshed successfully.",
       accessToken: newAccessToken,

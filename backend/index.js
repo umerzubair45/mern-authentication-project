@@ -13,8 +13,13 @@ const userRoutes = require("./routes/userRoutes");
 const helmet = require("helmet");
 const errorHandler = require("./middleware/errorHandler");
 require("./workers/emailWorker");
+const http = require("http");
+const { Server } = require("socket.io");
+const initializeSocket = require("./sockets/socket");
 
 const app = express();
+const server = http.createServer(app);
+
 app.use(helmet());
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.use(express.json({ limit: "10kb" }));
@@ -37,8 +42,21 @@ app.use((err, req, res, next) => {
 });
 
 app.use(errorHandler);
-app.listen(5051, () => {
+/*app.listen(5051, () => {
   console.log("server is running on port number:5051");
+});*/
+const io = new Server(server, {
+  cors: {
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+    methods: ["GET", "POST"],
+  },
+});
+
+initializeSocket(io);
+
+server.listen(5051, () => {
+  console.log("Server running on port 5051");
 });
 
 DbConnection();

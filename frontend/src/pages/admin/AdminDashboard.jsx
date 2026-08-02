@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import useApi from "../../hooks/useApi";
 import "./AdminDashboard.css";
+import useOnlineUsers from "../../hooks/useOnlineUsers";
 
 const AdminDashboard = () => {
   const { request, loading } = useApi();
-
+  const { onlineUsers } = useOnlineUsers();
   const [users, setUsers] = useState([]);
-
+  console.log(onlineUsers);
   useEffect(() => {
     const fetchUsers = async () => {
       const result = await request({
@@ -78,66 +79,79 @@ const AdminDashboard = () => {
                   <th>Email</th>
                   <th>Role</th>
                   <th>Status</th>
+                  <th>Presence</th>
                   <th>Actions</th>
                 </tr>
               </thead>
 
               <tbody>
-                {users.map((user) => (
-                  <tr key={user._id}>
-                    {/* User */}
-                    <td>
-                      <div className="user-info">
-                        <div className="user-avatar">
-                          {user.userName?.charAt(0).toUpperCase()}
+                {users.map((user) => {
+                  const isOnline = onlineUsers.includes(user._id);
+
+                  return (
+                    <tr key={user._id}>
+                      {/* User */}
+                      <td>
+                        <div className="user-info">
+                          <div className="user-avatar">
+                            {user.userName?.charAt(0).toUpperCase()}
+                          </div>
+
+                          <div>
+                            <strong>{user.userName}</strong>
+
+                            <span>ID: {user._id.slice(-6)}</span>
+                          </div>
                         </div>
-
-                        <div>
-                          <strong>{user.userName}</strong>
-
-                          <span>ID: {user._id.slice(-6)}</span>
-                        </div>
-                      </div>
-                    </td>
-
-                    {/* Email */}
-                    <td>
-                      <span className="user-email">{user.userEmail}</span>
-                    </td>
-
-                    {/* Role */}
-                    <td>
-                      <span className={`role-badge ${user.role}`}>
-                        {user.role}
-                      </span>
-                    </td>
-
-                    {/* Status */}
-                    <td>
-                      {user.isVerified ? (
-                        <span className="status verified">
-                          <span>●</span>
-                          Verified
+                      </td>
+                      {/* Email */}
+                      <td>
+                        <span className="user-email">{user.userEmail}</span>
+                      </td>
+                      {/* Role */}
+                      <td>
+                        <span className={`role-badge ${user.role}`}>
+                          {user.role}
                         </span>
-                      ) : (
-                        <span className="status unverified">
-                          <span>●</span>
-                          Unverified
-                        </span>
-                      )}
-                    </td>
-
-                    {/* Actions */}
-                    <td>
-                      <Link
-                        to={`/admin/users/${user._id}`}
-                        className="view-user-btn"
-                      >
-                        View
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      {/* Status */}
+                      <td>
+                        {user.isVerified ? (
+                          <span className="status verified">
+                            <span>●</span>
+                            Verified
+                          </span>
+                        ) : (
+                          <span className="status unverified">
+                            <span>●</span>
+                            Unverified
+                          </span>
+                        )}
+                      </td>
+                      {/* Presence */}
+                      <td>
+                        {isOnline ? (
+                          <span className="presence online">
+                            <span>🟢</span> Online
+                          </span>
+                        ) : (
+                          <span className="presence offline">
+                            <span>⚪</span> Offline
+                          </span>
+                        )}
+                      </td>
+                      {/* Actions */}
+                      <td>
+                        <Link
+                          to={`/admin/users/${user._id}`}
+                          className="view-user-btn"
+                        >
+                          View
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

@@ -1,0 +1,72 @@
+const onlineUsers = new Map();
+
+/**
+ * Add a socket for a user
+ */
+function addUser(userId, socketId) {
+  if (!onlineUsers.has(userId)) {
+    onlineUsers.set(userId, new Set());
+  }
+
+  onlineUsers.get(userId).add(socketId);
+}
+
+/**
+ * Remove a socket
+ */
+function removeUser(socketId) {
+  for (const [userId, sockets] of onlineUsers.entries()) {
+    if (sockets.has(socketId)) {
+      sockets.delete(socketId);
+
+      if (sockets.size === 0) {
+        onlineUsers.delete(userId);
+      }
+
+      break; // Stop searching
+    }
+  }
+}
+
+/**
+ * Get all online users
+ */
+function getOnlineUsers() {
+  return [...onlineUsers.keys()];
+}
+
+/**
+ * Get all socket IDs of a user
+ */
+function getSocketIds(userId) {
+  return onlineUsers.get(userId) || new Set();
+}
+
+/**
+ * Check if user is online
+ */
+function isUserOnline(userId) {
+  return onlineUsers.has(userId);
+}
+
+/**
+ * Debug helper
+ */
+function printOnlineUsers() {
+  console.log("===== ONLINE USERS =====");
+
+  for (const [userId, sockets] of onlineUsers.entries()) {
+    console.log(userId, [...sockets]);
+  }
+
+  console.log("========================");
+}
+
+module.exports = {
+  addUser,
+  removeUser,
+  getOnlineUsers,
+  getSocketIds,
+  isUserOnline,
+  printOnlineUsers,
+};

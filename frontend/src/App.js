@@ -16,6 +16,7 @@ import AdminRoute from "./components/AdminRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUserDetails from "./pages/admin/AdminUserDetails";
 import AdminEditUser from "./pages/admin/AdminEditUser";
+
 function App() {
   return (
     <>

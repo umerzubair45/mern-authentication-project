@@ -79,7 +79,6 @@ const Login = () => {
     if (result?.success) {
       login(result.data.user, result.data.accessToken);
       resetForm();
-      navigate(result.data.user.role === "admin" ? "/admin" : "/dashboard");
     }
     /*
       const result = await response.json();
