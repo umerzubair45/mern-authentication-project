@@ -1,0 +1,14 @@
+.empty-chat {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: #f8fafc;
+
+  color: #64748b;
+
+  font-size: 24px;
+
+  font-weight: 600;
+}

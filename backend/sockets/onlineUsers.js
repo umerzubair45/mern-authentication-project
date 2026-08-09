@@ -1,4 +1,5 @@
 const onlineUsers = new Map();
+const lastSeenUsers = new Map();
 
 /**
  * Add a socket for a user
@@ -9,6 +10,8 @@ function addUser(userId, socketId) {
   }
 
   onlineUsers.get(userId).add(socketId);
+  // User is online, so remove last-seen state
+  lastSeenUsers.delete(userId);
 }
 
 /**
@@ -21,6 +24,8 @@ function removeUser(socketId) {
 
       if (sockets.size === 0) {
         onlineUsers.delete(userId);
+        // User completely went offline
+        lastSeenUsers.set(userId, new Date());
       }
 
       break; // Stop searching
@@ -48,7 +53,26 @@ function getSocketIds(userId) {
 function isUserOnline(userId) {
   return onlineUsers.has(userId);
 }
+/*
+==========================================
+Get last seen
+==========================================
+*/
 
+function getLastSeen(userId) {
+  return lastSeenUsers.get(userId) || null;
+}
+/*
+==========================================
+Get ALL last seen users
+==========================================
+*/
+
+function getAllLastSeen() {
+  return Object.fromEntries(lastSeenUsers);
+}
+
+/*
 /**
  * Debug helper
  */
@@ -68,5 +92,7 @@ module.exports = {
   getOnlineUsers,
   getSocketIds,
   isUserOnline,
+  getLastSeen,
+  getAllLastSeen,
   printOnlineUsers,
 };

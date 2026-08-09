@@ -1,0 +1,13 @@
+.chat-placeholder {
+  height: 100%;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  font-size: 28px;
+
+  color: #777;
+}

@@ -16,6 +16,8 @@ require("./workers/emailWorker");
 const http = require("http");
 const { Server } = require("socket.io");
 const initializeSocket = require("./sockets/socket");
+const conversationRoutes = require("./routes/conversationRoutes");
+const messageRoutes = require("./routes/messageRoutes");
 
 const app = express();
 const server = http.createServer(app);
@@ -29,6 +31,8 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/conversations", conversationRoutes);
+app.use("/api/messages", messageRoutes);
 
 app.use((err, req, res, next) => {
   if (err.type === "entity.too.large") {

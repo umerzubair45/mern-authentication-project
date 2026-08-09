@@ -1,0 +1,154 @@
+.chat-header {
+  height: var(--chat-header-height);
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 0 var(--space-4, 16px);
+
+  background: var(--surface);
+
+  border-bottom: 1px solid var(--border);
+
+  flex-shrink: 0;
+}
+
+.chat-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  min-width: 0;
+}
+
+.chat-avatar-wrapper {
+  position: relative;
+}
+
+.chat-avatar {
+  width: var(--chat-avatar-size);
+  height: var(--chat-avatar-size);
+
+  border-radius: 50%;
+
+  background: var(--primary);
+  color: var(--white);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-weight: 600;
+  font-size: var(--text-md, 16px);
+
+  user-select: none;
+}
+
+.chat-online-dot {
+  position: absolute;
+
+  right: 2px;
+  bottom: 2px;
+
+  width: 12px;
+  height: 12px;
+
+  border-radius: 50%;
+
+  background: var(--success);
+
+  border: 2px solid var(--white);
+}
+
+.chat-user-info {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+}
+
+.chat-user-info h3 {
+  font-size: var(--text-md, 16px);
+
+  color: var(--text);
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-user-info span {
+  font-size: 12px !important;
+
+  color: var(--text-light);
+}
+
+.chat-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chat-icon-btn {
+  width: 30px;
+  height: 30px;
+
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+}
+
+.chat-icon-btn svg {
+  font-size: 18px;
+}
+
+@media (max-width: 768px) {
+  .chat-header {
+    padding: 0 12px;
+  }
+
+  .chat-user-info h3 {
+    font-size: 15px;
+  }
+
+  .chat-user-info span {
+    font-size: 8px;
+  }
+
+  .chat-icon-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .chat-icon-btn svg {
+    font-size: 16px;
+  }
+}
+.chat-typing {
+  color: #22c55e;
+  font-size: 13px;
+  font-weight: 500;
+  animation: typingBlink 1s infinite;
+}
+
+@keyframes typingBlink {
+  0% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.4;
+  }
+}
+.chat-offline-status {
+  font-size: 10px;
+}

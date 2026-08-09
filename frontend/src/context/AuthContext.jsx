@@ -4,7 +4,7 @@ import useApi from "../hooks/useApi";
 import { sendHello } from "../socket/emitEvents";
 import { useNavigate } from "react-router-dom";
 import { connectSocket, disconnectSocket } from "../socket/socketManager";
-import useOnlineUsers from "../hooks/useOnlineUsers";
+//import useOnlineUsers from "../hooks/useOnlineUsers";
 
 const AuthContext = createContext();
 
@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { setOnlineUsers } = useOnlineUsers();
+  //const { setOnlineUsers } = useOnlineUsers();
   const { request } = useApi();
 
   useEffect(() => {
@@ -23,26 +23,24 @@ export const AuthProvider = ({ children }) => {
     connectSocket({
       token,
       userName: user.userName,
-      setOnlineUsers,
     });
 
     return () => {
-      disconnectSocket({
-        setOnlineUsers,
-      });
+      disconnectSocket();
     };
   }, [user]);
   // Login Function
   const login = (userData, accessToken) => {
     localStorage.setItem("token", accessToken);
 
-    connectSocket({
+    /* connectSocket({
       token: accessToken,
       userName: userData.userName,
-      setOnlineUsers,
-    });
+    });*/
 
     setUser(userData);
+    console.log("After login user data");
+    console.log(userData);
 
     navigate(userData.role === "admin" ? "/admin" : "/dashboard");
   };
@@ -61,9 +59,11 @@ export const AuthProvider = ({ children }) => {
     } finally {
       // Always clear frontend authentication
       localStorage.removeItem("token");
-      disconnectSocket({
+      /*disconnectSocket({
         setOnlineUsers,
-      });
+      });*/
+      disconnectSocket();
+
       setUser(null);
 
       navigate("/login");

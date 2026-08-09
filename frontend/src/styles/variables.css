@@ -41,4 +41,51 @@
   /* Container */
 
   --container-width: 1200px;
+  /* =========================================
+   Chat
+========================================= */
+
+  --chat-sidebar-width: 340px;
+
+  --chat-header-height: 80px;
+
+  --chat-input-height: 80px;
+
+  --chat-avatar-size: 48px;
+
+  --chat-popup-width: 760px;
+
+  --chat-popup-height: 620px;
+
+  --chat-received-bg: #f3f4f6;
+
+  --chat-sent-bg: var(--primary);
+
+  --chat-sent-text: var(--white);
+
+  --chat-hover: #f9fafb;
+  /* Typography */
+
+  --text-xs: 12px;
+
+  --text-sm: 14px;
+
+  --text-md: 16px;
+
+  --text-lg: 18px;
+
+  --text-xl: 22px;
+
+  --text-2xl: 28px;
+  --space-1: 4px;
+
+  --space-2: 8px;
+
+  --space-3: 12px;
+
+  --space-4: 16px;
+
+  --space-5: 20px;
+
+  --space-6: 24px;
 }

@@ -6,6 +6,10 @@ const UserSchema = new mongoose.Schema(
     userEmail: { type: String, required: true, unique: true },
     userPassword: { type: String, required: true },
     isVerified: { type: Boolean, default: false },
+    lastSeen: {
+      type: Date,
+      default: null,
+    },
     role: { type: String, enum: ["user", "manager", "admin"], default: "user" },
     verificationToken: { type: String, default: null },
     verificationTokenExpires: { type: Date, default: null },

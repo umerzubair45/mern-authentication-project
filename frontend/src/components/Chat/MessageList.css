@@ -1,0 +1,29 @@
+.message-list {
+  flex: 1;
+
+  /* overflow-y: auto;*/
+
+  padding: 20px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 12px;
+
+  background: var(--background);
+}
+
+.message-list-empty {
+  flex: 1;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  color: var(--text-light);
+
+  font-size: 15px;
+}

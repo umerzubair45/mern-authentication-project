@@ -1,0 +1,330 @@
+.message-row {
+  display: flex;
+}
+
+.message-row-left {
+  justify-content: flex-start;
+}
+
+.message-row-right {
+  justify-content: flex-end;
+}
+
+.message-bubble {
+  max-width: 72%;
+
+  padding: 10px 14px;
+
+  border-radius: var(--radius-lg);
+
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+  word-break: break-word;
+}
+
+.message-sent {
+  background: var(--chat-sent-bg);
+
+  color: var(--chat-sent-text);
+
+  border-bottom-right-radius: 6px;
+}
+
+.message-received {
+  background: var(--chat-received-bg);
+
+  color: var(--text);
+
+  border-bottom-left-radius: 6px;
+}
+
+.message-text {
+  white-space: pre-wrap;
+
+  line-height: 1.5;
+}
+
+.message-time {
+  margin-top: 6px;
+
+  text-align: right;
+
+  font-size: 11px;
+
+  opacity: 0.75;
+}
+
+@media (max-width: 768px) {
+  .message-bubble {
+    max-width: 85%;
+  }
+}
+.message-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.message-status {
+  font-size: 12px;
+  color: #9ca3af;
+  font-weight: bold;
+}
+
+.message-status.read {
+  color: #2196f3;
+}
+
+/* =================================
+   REPLY PREVIEW
+================================= */
+
+.message-reply-preview {
+  margin-bottom: 8px;
+  padding: 6px 8px;
+  border-left: 3px solid currentColor;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.08);
+  font-size: 12px;
+}
+
+.reply-user {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.reply-message {
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+
+.message-text {
+  word-break: break-word;
+}
+.message-actions .message-reply-btn {
+  display: block;
+  margin: 6px 0 2px auto;
+  padding: 2px 5px;
+
+  border: 2 px solid black;
+  background: #2196f3;
+
+  font-size: 11px;
+  font-weight: 500;
+  color: inherit;
+  opacity: 0.6;
+
+  cursor: pointer;
+
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.message-reply-btn:hover {
+  opacity: 1;
+  transform: translateX(-2px);
+}
+/* Message row must be the hover container */
+.message-row {
+  position: relative;
+}
+
+/* Reply button hidden by default */
+.message-reply-btn {
+  position: absolute;
+  top: 50%;
+  right: 55px;
+
+  transform: translateY(-50%);
+
+  padding: 4px 7px;
+
+  border: none;
+  border-radius: 6px;
+
+  background: var(--surface);
+  color: var(--text);
+
+  font-size: 11px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  opacity: 0;
+  visibility: hidden;
+
+  transition:
+    opacity 0.2s ease,
+    visibility 0.2s ease,
+    transform 0.2s ease;
+
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+
+  z-index: 5;
+}
+
+/* Show when hovering message */
+.message-row:hover .message-reply-btn {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Hover effect */
+.message-reply-btn:hover {
+  transform: translateY(-50%) scale(1.03);
+}
+.message-row-right .message-reply-btn {
+  right: auto;
+  left: 70px;
+}
+.message-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.message-actions button {
+  border: none;
+  background: transparent;
+  color: #ffffff;
+  opacity: 0.55;
+
+  font-size: 10px;
+  cursor: pointer;
+
+  padding: 2px 4px;
+}
+
+.message-actions button:hover {
+  opacity: 1;
+}
+
+.message-edited {
+  font-size: 10px;
+  opacity: 0.6;
+  font-style: italic;
+}
+
+.message-deleted {
+  opacity: 0.65;
+  font-style: italic;
+}
+/* ==========================================
+   INLINE MESSAGE EDIT
+========================================== */
+
+.message-edit-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.message-edit-input {
+  width: 100%;
+  border: 0px;
+  background: transparent;
+  color: white;
+  font-family: inherit;
+  outline: none;
+}
+
+.message-edit-input:focus {
+  border-color: var(--primary);
+}
+
+.message-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.message-edit-actions button {
+  border: none;
+
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.message-edit-cancel {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.message-edit-cancel:hover {
+  color: black;
+  opacity: 0.9;
+}
+
+.message-edit-save {
+  background: var(--primary);
+  color: white;
+}
+
+.message-edit-save:hover {
+  opacity: 0.9;
+  color: black;
+}
+
+.message-edit-save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.delete-confirm-box {
+  padding: 6px;
+
+  border-radius: 10px;
+
+  background: rgba(255, 0, 0, 0.08);
+
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+
+  gap: 8px;
+}
+
+.delete-confirm-actions {
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 8px;
+}
+.cencil-confirm-btn {
+  background: #ffffff;
+
+  color: var(--chat-sent-bg);
+
+  border: none;
+
+  padding: 4px 8px;
+  font-size: 10px;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+}
+
+.delete-confirm-btn {
+  background: #dc2626;
+
+  color: white;
+
+  border: none;
+
+  padding: 4px 8px;
+  font-size: 10px;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+}

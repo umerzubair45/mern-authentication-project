@@ -1,0 +1,69 @@
+.chat-popup {
+  position: fixed;
+
+  right: 25px;
+
+  bottom: 100px;
+
+  width: 720px;
+
+  height: 620px;
+
+  background: #fff;
+
+  border-radius: 18px;
+
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.18);
+
+  display: flex;
+
+  flex-direction: column;
+
+  overflow: hidden;
+
+  z-index: 9998;
+}
+
+.chat-popup-header {
+  height: 65px;
+
+  background: #1877f2;
+
+  color: white;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding: 0 22px;
+
+  font-size: 18px;
+
+  font-weight: 600;
+}
+
+/*.chat-popup-header Button {
+  background: none;
+
+  border: none;
+
+  color: white;
+
+  cursor: pointer;
+
+  font-size: 22px;
+}*/
+.chat-close-btn {
+  padding: 9px 24px;
+  max-width: 20px;
+}
+
+.chat-popup-body {
+  flex: 1;
+
+  background: #f5f7fb;
+
+  overflow: hidden;
+}

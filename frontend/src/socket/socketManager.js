@@ -3,32 +3,47 @@ import { registerSocketListeners, removeSocketListeners } from "./listenEvents";
 
 import { sendHello } from "./emitEvents";
 
-export const connectSocket = ({ token, userName, setOnlineUsers }) => {
-  if (socket.connected) {
-    return;
-  }
+export const connectSocket = ({
+  token,
+  userName,
+  setOnlineUsers,
+  onReceiveMessage,
+  onTyping,
+  onStopTyping,
+} = {}) => {
+  // Prevent duplicate connections
+  if (socket.connected) return;
 
   socket.auth = {
     token,
   };
 
+  // Register all socket listeners BEFORE connecting
   registerSocketListeners({
     setOnlineUsers,
+    onReceiveMessage,
+    onTyping,
+    onStopTyping,
   });
 
   socket.connect();
 
   socket.once("connect", () => {
-    console.log("✅ Socket Connected");
+    console.log(`✅ ${userName} connected`);
 
     sendHello(userName);
   });
+
+  socket.once("connect_error", (err) => {
+    console.error("❌ Socket Error:", err.message);
+  });
 };
 
-export const disconnectSocket = ({ setOnlineUsers }) => {
+export const disconnectSocket = () => {
+  // Remove all listeners
   removeSocketListeners();
 
-  socket.disconnect();
-
-  setOnlineUsers([]);
+  if (socket.connected) {
+    socket.disconnect();
+  }
 };
