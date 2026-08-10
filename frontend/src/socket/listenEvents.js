@@ -1,6 +1,8 @@
+// src/socket/listenEvents.js
+
 import socket from "./socket";
 
-export const registerSocketListeners = ({
+export const setupSocketListeners = ({
   setOnlineUsers,
   onReceiveMessage,
   onMessageSent,
@@ -10,19 +12,22 @@ export const registerSocketListeners = ({
   onMessageDeleted,
   onTyping,
   onStopTyping,
-  onIncomingAudioCall,
+
+  // Audio call
   onCallStarted,
   onCallAccepted,
   onCallRejected,
   onCallEnded,
   onCallUnavailable,
   onCallError,
-} = {}) => {
-  /*
-  ==========================
-  Online Users
-  ==========================
-  */
+
+  // WebRTC
+  onWebRTCAnswer,
+  onWebRTCICECandidate,
+}) => {
+  // =========================
+  // ONLINE USERS
+  // =========================
 
   socket.off("online_users");
 
@@ -32,11 +37,9 @@ export const registerSocketListeners = ({
     setOnlineUsers?.(users);
   });
 
-  /*
-  ==========================
-  Receive Message
-  ==========================
-  */
+  // =========================
+  // RECEIVE MESSAGE
+  // =========================
 
   socket.off("receive_message");
 
@@ -46,11 +49,9 @@ export const registerSocketListeners = ({
     onReceiveMessage?.(message);
   });
 
-  /*
-==========================
-Sender Acknowledgement
-==========================
-*/
+  // =========================
+  // MESSAGE SENT
+  // =========================
 
   socket.off("message_sent");
 
@@ -59,21 +60,30 @@ Sender Acknowledgement
 
     onMessageSent?.(message);
   });
+
+  // =========================
+  // MESSAGE DELIVERED
+  // =========================
+
   socket.off("message_delivered");
 
   socket.on("message_delivered", (message) => {
     onMessageDelivered?.(message);
   });
+
+  // =========================
+  // MESSAGE READ
+  // =========================
+
   socket.off("message_read");
 
   socket.on("message_read", (message) => {
     onMessageRead?.(message);
   });
-  /*
-==========================
-EDIT MESSAGE
-==========================
-*/
+
+  // =========================
+  // EDIT MESSAGE
+  // =========================
 
   socket.off("message_edited");
 
@@ -83,11 +93,9 @@ EDIT MESSAGE
     onMessageEdited?.(message);
   });
 
-  /*
-==========================
-DELETE MESSAGE
-==========================
-*/
+  // =========================
+  // DELETE MESSAGE
+  // =========================
 
   socket.off("message_deleted");
 
@@ -97,11 +105,9 @@ DELETE MESSAGE
     onMessageDeleted?.(message);
   });
 
-  /*
-  ==========================
-  Typing
-  ==========================
-  */
+  // =========================
+  // TYPING
+  // =========================
 
   socket.off("typing");
 
@@ -109,11 +115,9 @@ DELETE MESSAGE
     onTyping?.(data);
   });
 
-  /*
-  ==========================
-  Stop Typing
-  ==========================
-  */
+  // =========================
+  // STOP TYPING
+  // =========================
 
   socket.off("stop_typing");
 
@@ -121,30 +125,9 @@ DELETE MESSAGE
     onStopTyping?.(data);
   });
 
-  /*
-  ==========================
-  Errors
-  ==========================
-  */
-
-  socket.off("message_error");
-
-  socket.on("message_error", (error) => {
-    console.log("❌", error.message);
-  });
-  /*
-==========================================
-AUDIO CALL
-==========================================
-*/
-
-  // socket.off("incoming_audio_call");
-
-  // socket.on("incoming_audio_call", (data) => {
-  //   console.log("📞 Incoming Audio Call:", data);
-
-  //   onIncomingAudioCall?.(data);
-  // });
+  // =========================
+  // AUDIO CALL
+  // =========================
 
   socket.off("call_started");
 
@@ -193,7 +176,35 @@ AUDIO CALL
 
     onCallError?.(data);
   });
+
+  // =========================
+  // WEBRTC ANSWER
+  // =========================
+
+  socket.off("webrtc_answer");
+
+  socket.on("webrtc_answer", (data) => {
+    console.log("📡 WebRTC Answer Received:", data);
+
+    onWebRTCAnswer?.(data);
+  });
+
+  // =========================
+  // WEBRTC ICE CANDIDATE
+  // =========================
+
+  socket.off("webrtc_ice_candidate");
+
+  socket.on("webrtc_ice_candidate", (data) => {
+    console.log("🧊 WebRTC ICE Candidate Received:", data);
+
+    onWebRTCICECandidate?.(data);
+  });
 };
+
+// =========================
+// REMOVE LISTENERS
+// =========================
 
 export const removeSocketListeners = () => {
   socket.off("online_users");
@@ -202,25 +213,41 @@ export const removeSocketListeners = () => {
 
   socket.off("message_sent");
 
+  socket.off("message_delivered");
+
+  socket.off("message_read");
+
   socket.off("typing");
 
   socket.off("stop_typing");
 
-  socket.off("message_error");
+  socket.off("message_edited");
+
+  socket.off("message_deleted");
+
   socket.off("connect");
+
   socket.off("disconnect");
 
   socket.off("welcome-client");
-  socket.off("message_delivered");
-  socket.off("message_read");
-  socket.off("message_edited");
-  socket.off("message_deleted");
+
   socket.off("user_offline");
-  socket.off("incoming_audio_call");
+
   socket.off("call_started");
+
   socket.off("audio_call_accepted");
+
   socket.off("audio_call_rejected");
+
   socket.off("audio_call_ended");
+
   socket.off("call_unavailable");
+
   socket.off("call_error");
+
+  socket.off("webrtc_offer");
+
+  socket.off("webrtc_answer");
+
+  socket.off("webrtc_ice_candidate");
 };

@@ -15,7 +15,7 @@ import MessageContainer from "./MessageContainer";
 import { useLayoutEffect } from "react";
 
 import {
-  registerSocketListeners,
+  setupSocketListeners,
   removeSocketListeners,
 } from "../../socket/listenEvents";
 import {
@@ -106,7 +106,7 @@ const ChatWindow = () => {
   */
 
   useEffect(() => {
-    registerSocketListeners({
+    setupSocketListeners({
       onReceiveMessage: handleReceiveMessage,
       onMessageSent: handleReceiveMessage,
       onMessageDelivered: handleMessageDelivered,

@@ -75,3 +75,28 @@ export const endAudioCall = ({ callId, receiverId }) => {
     receiverId,
   });
 };
+// WEBRTC SIGNALING
+
+export const sendWebRTCOffer = ({ receiverId, callId, offer }) => {
+  socket.emit("webrtc_offer", {
+    receiverId,
+    callId,
+    offer,
+  });
+};
+
+export const sendWebRTCAnswer = ({ callerId, callId, answer }) => {
+  socket.emit("webrtc_answer", {
+    callerId,
+    callId,
+    answer,
+  });
+};
+
+export const sendWebRTCICECandidate = ({ receiverId, callId, candidate }) => {
+  socket.emit("webrtc_ice_candidate", {
+    receiverId,
+    callId,
+    candidate,
+  });
+};

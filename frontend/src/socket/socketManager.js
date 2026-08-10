@@ -1,5 +1,5 @@
 import socket from "./socket";
-import { registerSocketListeners, removeSocketListeners } from "./listenEvents";
+import { setupSocketListeners, removeSocketListeners } from "./listenEvents";
 
 import { sendHello } from "./emitEvents";
 
@@ -19,7 +19,7 @@ export const connectSocket = ({
   };
 
   // Register all socket listeners BEFORE connecting
-  registerSocketListeners({
+  setupSocketListeners({
     setOnlineUsers,
     onReceiveMessage,
     onTyping,

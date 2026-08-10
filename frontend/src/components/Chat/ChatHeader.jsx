@@ -1,16 +1,29 @@
-import { useContext } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { FiMoreVertical, FiPhone, FiVideo } from "react-icons/fi";
 import AuthContext from "../../context/AuthContext";
 import OnlineUsersContext from "../../context/OnlineUsersContext";
-import { startAudioCall } from "../../socket/emitEvents";
-
+import {
+  startAudioCall,
+  sendWebRTCOffer,
+  sendWebRTCICECandidate,
+} from "../../socket/emitEvents";
+import socket from "../../socket/socket";
 import Button from "../Button/Button";
+import {
+  createPeerConnection,
+  getLocalAudioStream,
+  addLocalStream,
+  createOffer,
+  setRemoteDescription,
+  addIceCandidate,
+} from "../../services/webrtcService";
 
 import "./ChatHeader.css";
 
 const ChatHeader = ({ conversation, isTyping }) => {
   const { user } = useContext(AuthContext);
-
+  const remoteAudioRef = useRef(null);
+  const activeCallIdRef = useRef(null);
   const { onlineUsers, lastSeenUsers } = useContext(OnlineUsersContext);
 
   console.log("========== CHAT HEADER ==========");
@@ -19,6 +32,65 @@ const ChatHeader = ({ conversation, isTyping }) => {
   console.log("Participants:", conversation.participants);
 
   console.log("Logged User ID:", user.userId);
+  useEffect(() => {
+    const handleWebRTCAnswer = async (data) => {
+      console.log("📡 Caller received WebRTC answer:", data);
+
+      const { callId, receiverId, answer } = data;
+
+      if (!activeCallIdRef.current) {
+        console.log("⚠️ No active caller call.");
+        return;
+      }
+
+      if (activeCallIdRef.current !== callId) {
+        console.log("⚠️ Answer belongs to another call.");
+        return;
+      }
+
+      try {
+        console.log("📡 Caller applying receiver answer...");
+
+        await setRemoteDescription(answer);
+
+        console.log("✅ Caller remote answer applied successfully.");
+      } catch (error) {
+        console.error("❌ Failed to apply caller remote answer:", error);
+      }
+    };
+
+    const handleWebRTCICECandidate = async (data) => {
+      console.log("🧊 Caller received receiver ICE candidate:", data);
+
+      const { callId, candidate } = data;
+
+      if (!activeCallIdRef.current) {
+        console.log("⚠️ No active caller call.");
+        return;
+      }
+
+      if (activeCallIdRef.current !== callId) {
+        console.log("⚠️ ICE candidate belongs to another call.");
+        return;
+      }
+
+      try {
+        await addIceCandidate(candidate);
+
+        console.log("🧊 Caller added receiver ICE candidate.");
+      } catch (error) {
+        console.error("❌ Failed to add receiver ICE candidate:", error);
+      }
+    };
+
+    socket.on("webrtc_answer", handleWebRTCAnswer);
+    socket.on("webrtc_ice_candidate", handleWebRTCICECandidate);
+
+    return () => {
+      socket.off("webrtc_answer", handleWebRTCAnswer);
+      socket.off("webrtc_ice_candidate", handleWebRTCICECandidate);
+    };
+  }, []);
 
   const otherUser = conversation.participants.find(
     (participant) => participant._id !== user.userId,
@@ -29,88 +101,199 @@ const ChatHeader = ({ conversation, isTyping }) => {
   const lastSeen = lastSeenUsers[otherUser?._id];
 
   return (
-    <header className="chat-header">
-      <div className="chat-user">
-        <div className="chat-avatar-wrapper">
-          <div className="chat-avatar">
-            {otherUser.userName.charAt(0).toUpperCase()}
+    <>
+      <header className="chat-header">
+        <div className="chat-user">
+          <div className="chat-avatar-wrapper">
+            <div className="chat-avatar">
+              {otherUser.userName.charAt(0).toUpperCase()}
+            </div>
+
+            {isOnline && <span className="chat-online-dot" />}
           </div>
 
-          {isOnline && <span className="chat-online-dot" />}
-        </div>
-
-        <div className="chat-user-info">
-          <h3>{otherUser.userName}</h3>
-          {isTyping ? (
-            <small className="chat-typing">Typing...</small>
-          ) : (
-            <small className={isOnline ? "online" : "offline"}>
-              {isOnline ? "Online" : "Offline"}
-            </small>
-          )}
-
-          <div className="chat-user-status">
-            {isOnline ? (
-              <span className="chat-online-status">Online</span>
+          <div className="chat-user-info">
+            <h3>{otherUser.userName}</h3>
+            {isTyping ? (
+              <small className="chat-typing">Typing...</small>
             ) : (
-              <span className="chat-offline-status">
-                {lastSeen
-                  ? `Last seen ${new Date(otherUser.lastSeen).toLocaleString(
-                      [],
-                      {
-                        dateStyle: "medium",
-                        timeStyle: "short",
-                      },
-                    )}`
-                  : "Offline"}
-              </span>
+              <small className={isOnline ? "online" : "offline"}>
+                {isOnline ? "Online" : "Offline"}
+              </small>
             )}
+
+            <div className="chat-user-status">
+              {isOnline ? (
+                <span className="chat-online-status">Online</span>
+              ) : (
+                <span className="chat-offline-status">
+                  {lastSeen
+                    ? `Last seen ${new Date(otherUser.lastSeen).toLocaleString(
+                        [],
+                        {
+                          dateStyle: "medium",
+                          timeStyle: "short",
+                        },
+                      )}`
+                    : "Offline"}
+                </span>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="chat-actions">
-        <Button
-          type="button"
-          variant="secondary"
-          className="chat-icon-btn"
-          title="Voice Call"
-          onClick={() => {
-            const callId = crypto.randomUUID();
+        <div className="chat-actions">
+          <Button
+            type="button"
+            variant="secondary"
+            className="chat-icon-btn"
+            title="Voice Call"
+            onClick={async () => {
+              const callId = crypto.randomUUID();
 
-            console.log("📞 Starting Audio Call:", {
-              callId,
-              receiverId: otherUser._id,
-            });
+              activeCallIdRef.current = callId;
 
-            startAudioCall({
-              receiverId: otherUser._id,
-              callId,
-            });
-          }}
-        >
-          <FiPhone />
-        </Button>
+              console.log("📞 Starting Audio Call:", {
+                callId,
+                receiverId: otherUser._id,
+              });
 
-        <Button
-          type="button"
-          variant="secondary"
-          className="chat-icon-btn"
-          title="Video Call"
-        >
-          <FiVideo />
-        </Button>
+              // Existing call signaling
+              startAudioCall({
+                receiverId: otherUser._id,
+                callId,
+              });
 
-        <Button
-          type="button"
-          variant="secondary"
-          className="chat-icon-btn"
-          title="More"
-        >
-          <FiMoreVertical />
-        </Button>
-      </div>
-    </header>
+              try {
+                console.log("🌐 Creating WebRTC Peer Connection...");
+
+                createPeerConnection({
+                  onIceCandidate: (candidate) => {
+                    console.log("🧊 Local ICE Candidate:", candidate);
+
+                    sendWebRTCICECandidate({
+                      receiverId: otherUser._id,
+                      callId,
+                      candidate,
+                    });
+                  },
+
+                  onTrack: (remoteStream) => {
+                    console.log(
+                      "🔊 Caller received remote audio:",
+                      remoteStream,
+                    );
+
+                    console.log(
+                      "🎵 Remote tracks:",
+                      remoteStream.getAudioTracks(),
+                    );
+
+                    if (!remoteAudioRef.current) {
+                      console.error("❌ remoteAudioRef.current is NULL");
+                      return;
+                    }
+
+                    console.log(
+                      "🎧 Audio element found:",
+                      remoteAudioRef.current,
+                    );
+
+                    remoteAudioRef.current.srcObject = remoteStream;
+
+                    console.log(
+                      "🎧 Audio srcObject:",
+                      remoteAudioRef.current.srcObject,
+                    );
+
+                    remoteAudioRef.current
+                      .play()
+                      .then(() => {
+                        console.log("✅ Remote audio playback started");
+                        console.log(
+                          "🔊 Audio paused:",
+                          remoteAudioRef.current.paused,
+                        );
+                        console.log(
+                          "🔊 Audio volume:",
+                          remoteAudioRef.current.volume,
+                        );
+                      })
+                      .catch((error) => {
+                        console.error(
+                          "❌ Remote audio playback failed:",
+                          error,
+                        );
+                      });
+                  },
+
+                  onConnectionStateChange: (state) => {
+                    console.log("🌐 WebRTC Connection State:", state);
+
+                    if (state === "connected") {
+                      console.log("✅ WebRTC AUDIO CONNECTED");
+                    }
+
+                    if (
+                      state === "failed" ||
+                      state === "disconnected" ||
+                      state === "closed"
+                    ) {
+                      console.log("❌ WebRTC connection ended:", state);
+                    }
+                  },
+                });
+
+                console.log("🎙️ Getting microphone...");
+
+                const stream = await getLocalAudioStream();
+
+                console.log("🎙️ Microphone ready:", stream);
+
+                addLocalStream(stream);
+
+                console.log("🎙️ Local audio added to peer connection");
+
+                const offer = await createOffer();
+
+                console.log("📡 WebRTC Offer Created:", offer);
+
+                sendWebRTCOffer({
+                  receiverId: otherUser._id,
+                  callId,
+                  offer,
+                });
+
+                console.log("📡 WebRTC Offer Sent");
+              } catch (error) {
+                console.error("❌ WebRTC Caller Error:", error);
+              }
+            }}
+          >
+            <FiPhone />
+          </Button>
+
+          <Button
+            type="button"
+            variant="secondary"
+            className="chat-icon-btn"
+            title="Video Call"
+          >
+            <FiVideo />
+          </Button>
+
+          <Button
+            type="button"
+            variant="secondary"
+            className="chat-icon-btn"
+            title="More"
+          >
+            <FiMoreVertical />
+          </Button>
+        </div>
+      </header>
+      <audio ref={remoteAudioRef} autoPlay playsInline />
+    </>
   );
 };
 
