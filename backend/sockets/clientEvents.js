@@ -48,6 +48,11 @@ const registerClientEvents = (socket, events) => {
   socket.on("reject_audio_call", (data) => {
     events.rejectAudioCall(socket, data);
   });
+  // socket.on("end_audio_call", ({ callId, receiverId }) => {
+  //   io.to(receiverId).emit("audio_call_ended", {
+  //     callId,
+  //   });
+  // });
 
   socket.on("end_audio_call", (data) => {
     events.endAudioCall(socket, data);

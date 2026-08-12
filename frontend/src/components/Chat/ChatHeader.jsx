@@ -6,6 +6,7 @@ import {
   startAudioCall,
   sendWebRTCOffer,
   sendWebRTCICECandidate,
+  endAudioCall,
 } from "../../socket/emitEvents";
 import socket from "../../socket/socket";
 import Button from "../Button/Button";
@@ -16,6 +17,7 @@ import {
   createOffer,
   setRemoteDescription,
   addIceCandidate,
+  cleanupWebRTC,
 } from "../../services/webrtcService";
 
 import "./ChatHeader.css";
@@ -99,6 +101,20 @@ const ChatHeader = ({ conversation, isTyping }) => {
 
   const isOnline = onlineUsers.includes(otherUser._id);
   const lastSeen = lastSeenUsers[otherUser?._id];
+
+  const handleEndCall = () => {
+    console.log("📞 CALLER ENDING CALL");
+
+    endAudioCall({
+      callId,
+      receiverId,
+    });
+
+    cleanupWebRTC();
+
+    setCallStarted(false);
+    setCallConnected(false);
+  };
 
   return (
     <>
@@ -290,6 +306,7 @@ const ChatHeader = ({ conversation, isTyping }) => {
           >
             <FiMoreVertical />
           </Button>
+          <button onClick={handleEndCall}>End Call</button>
         </div>
       </header>
       <audio ref={remoteAudioRef} autoPlay playsInline />

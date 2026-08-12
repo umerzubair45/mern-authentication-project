@@ -47,15 +47,29 @@ export const createPeerConnection = ({
    * Remote audio/video track received
    */
   peerConnection.ontrack = (event) => {
-    console.log("🔊 Remote track received");
+    console.log("🔊 =============================");
+    console.log("🔊 WEBRTC REMOTE TRACK RECEIVED");
+    console.log("🔊 =============================");
+
+    console.log("🔊 Event:", event);
+    console.log("🔊 Streams:", event.streams);
+    console.log("🔊 Track:", event.track);
+    console.log("🔊 Track kind:", event.track?.kind);
+    console.log("🔊 Track enabled:", event.track?.enabled);
+    console.log("🔊 Track muted:", event.track?.muted);
+    console.log("🔊 Track readyState:", event.track?.readyState);
 
     const [remoteStream] = event.streams;
 
-    if (remoteStream) {
-      console.log("🔊 Remote Stream:", remoteStream);
-
-      onTrack?.(remoteStream);
+    if (!remoteStream) {
+      console.error("❌ No remote MediaStream received.");
+      return;
     }
+
+    console.log("🔊 Remote Stream:", remoteStream);
+    console.log("🔊 Remote Audio Tracks:", remoteStream.getAudioTracks());
+
+    onTrack?.(remoteStream);
   };
 
   /**
@@ -64,7 +78,16 @@ export const createPeerConnection = ({
   peerConnection.onconnectionstatechange = () => {
     const state = peerConnection.connectionState;
 
-    console.log("🌐 WebRTC Connection State:", state);
+    console.log("🌐 =============================");
+    console.log("🌐 WEBRTC CONNECTION STATE");
+    console.log("🌐 =============================");
+    console.log("🌐 State:", state);
+
+    console.log("🌐 ICE Connection State:", peerConnection.iceConnectionState);
+
+    console.log("🌐 ICE Gathering State:", peerConnection.iceGatheringState);
+
+    console.log("🌐 Signaling State:", peerConnection.signalingState);
 
     onConnectionStateChange?.(state);
   };

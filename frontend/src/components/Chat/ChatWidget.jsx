@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 
 import AuthContext from "../../context/AuthContext";
 import FloatingButton from "./FloatingButton";
@@ -39,7 +39,7 @@ const ChatWidget = () => {
 
   // WebRTC offer can arrive before OR after user clicks Accept
   const [pendingOffer, setPendingOffer] = useState(null);
-
+  const remoteAudioRef = useRef(null);
   /*
    * ============================================================
    * INCOMING AUDIO CALL + WEBRTC OFFER LISTENERS
@@ -116,7 +116,28 @@ const ChatWidget = () => {
 
     handleAcceptedWebRTC(incomingCall, pendingOffer);
   }, [callAccepted, incomingCall, pendingOffer]);
+  const handleEndCall = () => {
+    if (!incomingCall && !activeCall) {
+      return;
+    }
 
+    const callId = incomingCall?.callId || activeCall?.callId;
+
+    const callerId = incomingCall?.callerId || activeCall?.callerId;
+
+    console.log("📞 RECEIVER ENDING CALL");
+
+    endAudioCall({
+      receiverId: callerId,
+      callId,
+    });
+
+    cleanupWebRTC();
+
+    setIncomingCall(null);
+    setPendingOffer(null);
+    setCallAccepted(false);
+  };
   /*
    * ============================================================
    * ACCEPT AUDIO CALL
@@ -136,7 +157,19 @@ const ChatWidget = () => {
 
     console.log("✅ ACCEPT CALL:", incomingCall);
 
+    const { callId, callerId } = incomingCall;
+
+    // Tell server IMMEDIATELY that receiver accepted
+    acceptAudioCall({
+      callerId,
+      callId,
+    });
+
+    console.log("✅ Audio call acceptance sent to server");
+
+    // Mark receiver as accepted
     setCallAccepted(true);
+    // setIncomingCall(null);
   };
 
   /*
@@ -174,16 +207,60 @@ const ChatWidget = () => {
         },
 
         onTrack: (remoteStream) => {
-          console.log("🔊 Receiver got remote audio:", remoteStream);
+          console.log("🔊 RECEIVER REMOTE STREAM:", remoteStream);
 
-          /*
-           * IMPORTANT:
-           * This is where the caller's audio stream arrives.
-           *
-           * Later we can attach this stream to:
-           *
-           * <audio autoPlay />
-           */
+          const remoteTrack = remoteStream.getAudioTracks()[0];
+
+          console.log("🎵 REMOTE TRACK:", remoteTrack);
+          console.log("🎵 Initial muted:", remoteTrack.muted);
+          console.log("🎵 Initial enabled:", remoteTrack.enabled);
+          console.log("🎵 Initial readyState:", remoteTrack.readyState);
+
+          if (!remoteAudioRef.current) {
+            console.error("❌ Receiver audio element is NULL");
+            return;
+          }
+
+          const audio = remoteAudioRef.current;
+
+          audio.srcObject = remoteStream;
+          audio.autoplay = true;
+          audio.playsInline = true;
+          audio.muted = false;
+          audio.volume = 1;
+
+          const playRemoteAudio = async () => {
+            try {
+              await audio.play();
+
+              console.log("🔊 REMOTE AUDIO PLAYING");
+              console.log("🔊 paused:", audio.paused);
+              console.log("🔊 muted:", audio.muted);
+              console.log("🔊 volume:", audio.volume);
+              console.log("🔊 readyState:", audio.readyState);
+            } catch (error) {
+              console.error("❌ REMOTE AUDIO PLAY FAILED:", error);
+            }
+          };
+
+          // Try immediately
+          playRemoteAudio();
+
+          // Important: remote WebRTC audio can initially be muted
+          // and become unmuted later.
+          remoteTrack.onunmute = () => {
+            console.log("🔊🔊🔊 REMOTE TRACK UNMUTED");
+
+            playRemoteAudio();
+          };
+
+          remoteTrack.onmute = () => {
+            console.log("🔇 REMOTE TRACK MUTED");
+          };
+
+          remoteTrack.onended = () => {
+            console.log("🛑 REMOTE TRACK ENDED");
+          };
         },
 
         onConnectionStateChange: (state) => {
@@ -275,19 +352,6 @@ const ChatWidget = () => {
 
       /*
        * --------------------------------------------------------
-       * 7. Tell Server Call Was Accepted
-       * --------------------------------------------------------
-       */
-
-      acceptAudioCall({
-        callerId,
-        callId,
-      });
-
-      console.log("✅ Audio call acceptance sent to server");
-
-      /*
-       * --------------------------------------------------------
        * 8. Remove Incoming Popup
        * --------------------------------------------------------
        */
@@ -372,6 +436,7 @@ const ChatWidget = () => {
         onAccept={handleAcceptCall}
         onReject={handleRejectCall}
       />
+      <audio ref={remoteAudioRef} autoPlay playsInline />
     </>
   );
 };
