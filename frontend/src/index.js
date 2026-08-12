@@ -7,15 +7,18 @@ import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { OnlineUsersProvider } from "./context/OnlineUsersContext";
 import { ChatProvider } from "./context/ChatContext";
+import { CallProvider } from "./context/CallContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <BrowserRouter>
     <OnlineUsersProvider>
       <AuthProvider>
-        <ChatProvider>
-          <App />
-        </ChatProvider>
+        <CallProvider>
+          <ChatProvider>
+            <App />
+          </ChatProvider>
+        </CallProvider>
       </AuthProvider>
     </OnlineUsersProvider>
   </BrowserRouter>,

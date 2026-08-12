@@ -22,7 +22,9 @@ import {
   sendWebRTCICECandidate,
   acceptAudioCall,
   rejectAudioCall,
+  endAudioCall,
 } from "../../socket/emitEvents";
+import { useCall } from "../../context/CallContext";
 
 import "./ChatWidget.css";
 
@@ -39,7 +41,17 @@ const ChatWidget = () => {
 
   // WebRTC offer can arrive before OR after user clicks Accept
   const [pendingOffer, setPendingOffer] = useState(null);
+  //const [activeCall, setActiveCall] = useState(null);
+  const { activeCall, setActiveCall, clearActiveCall } = useCall();
   const remoteAudioRef = useRef(null);
+  const activeCallRef = useRef(null);
+
+  //const activeRemoteUserIdRef = useRef(null);
+  useEffect(() => {
+    activeCallRef.current = activeCall;
+
+    console.log("📞 Receiver activeCall:", activeCall);
+  }, [activeCall]);
   /*
    * ============================================================
    * INCOMING AUDIO CALL + WEBRTC OFFER LISTENERS
@@ -67,16 +79,45 @@ const ChatWidget = () => {
       setPendingOffer(data);
     };
 
-    socket.on("incoming_audio_call", handleIncomingAudioCall);
+    const handleAudioCallEnded = (data) => {
+      console.log("📴 Audio Call Ended:", data);
 
+      const currentCall = activeCallRef.current;
+
+      if (!currentCall) {
+        console.log("⚠️ No active call in receiver.");
+        return;
+      }
+
+      if (currentCall.callId !== data.callId) {
+        console.log("⚠️ Ended call does not match active call.");
+        return;
+      }
+
+      console.log("🛑 REMOTE CALL ENDING");
+
+      cleanupWebRTC();
+
+      console.log("🧹 Clearing active call from CallContext");
+      clearActiveCall();
+      setIncomingCall(null);
+      setPendingOffer(null);
+      setCallAccepted(false);
+      setActiveCall(null);
+
+      console.log("✅ Receiver call cleanup complete");
+    };
+
+    socket.on("incoming_audio_call", handleIncomingAudioCall);
     socket.on("webrtc_offer", handleWebRTCOffer);
+    socket.on("audio_call_ended", handleAudioCallEnded);
 
     return () => {
       console.log("📞 ChatWidget: removing incoming call listeners");
 
       socket.off("incoming_audio_call", handleIncomingAudioCall);
-
       socket.off("webrtc_offer", handleWebRTCOffer);
+      socket.off("audio_call_ended", handleAudioCallEnded);
     };
   }, [user]);
 
@@ -117,26 +158,29 @@ const ChatWidget = () => {
     handleAcceptedWebRTC(incomingCall, pendingOffer);
   }, [callAccepted, incomingCall, pendingOffer]);
   const handleEndCall = () => {
-    if (!incomingCall && !activeCall) {
+    const currentCall = activeCallRef.current;
+
+    console.log("📞 CALLER ENDING CALL:", currentCall);
+
+    if (!currentCall) {
+      console.log("⚠️ No active call to end.");
       return;
     }
 
-    const callId = incomingCall?.callId || activeCall?.callId;
-
-    const callerId = incomingCall?.callerId || activeCall?.callerId;
-
-    console.log("📞 RECEIVER ENDING CALL");
-
     endAudioCall({
-      receiverId: callerId,
-      callId,
+      callId: currentCall.callId,
+      receiverId: currentCall.receiverId,
     });
 
     cleanupWebRTC();
 
+    //activeCallIdRef.current = null;
+
     setIncomingCall(null);
     setPendingOffer(null);
     setCallAccepted(false);
+    clearActiveCall();
+    console.log("✅ Caller call cleanup complete");
   };
   /*
    * ============================================================
@@ -157,19 +201,27 @@ const ChatWidget = () => {
 
     console.log("✅ ACCEPT CALL:", incomingCall);
 
-    const { callId, callerId } = incomingCall;
+    const { callId, callerId, receiverId } = incomingCall;
 
-    // Tell server IMMEDIATELY that receiver accepted
     acceptAudioCall({
       callerId,
       callId,
     });
 
-    console.log("✅ Audio call acceptance sent to server");
+    setActiveCall({
+      callId,
+      callerId,
+      receiverId,
+      role: "receiver",
+    });
 
-    // Mark receiver as accepted
+    console.log("📞 Receiver active call stored:", {
+      callId,
+      callerId,
+      receiverId,
+    });
+
     setCallAccepted(true);
-    // setIncomingCall(null);
   };
 
   /*
@@ -181,14 +233,14 @@ const ChatWidget = () => {
   const handleAcceptedWebRTC = async (call, offerData) => {
     try {
       const { callId, callerId } = call;
-
-      const { offer } = offerData;
+      // activeCallIdRef.current = callId;
+      // activeRemoteUserIdRef.current = callerId;
 
       console.log("🌐 Starting receiver WebRTC:", {
         callId,
         callerId,
       });
-
+      const { offer } = offerData;
       /*
        * --------------------------------------------------------
        * 1. Create Peer Connection
@@ -279,9 +331,12 @@ const ChatWidget = () => {
 
             cleanupWebRTC();
 
-            setCallAccepted(false);
+            //activeCallIdRef.current = null;
+            //activeRemoteUserIdRef.current = null;
+
             setIncomingCall(null);
             setPendingOffer(null);
+            setCallAccepted(false);
           }
         },
       });
@@ -400,6 +455,7 @@ const ChatWidget = () => {
 
     setIncomingCall(null);
     setPendingOffer(null);
+    setActiveCall(null);
     setCallAccepted(false);
 
     cleanupWebRTC();

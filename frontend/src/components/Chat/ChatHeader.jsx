@@ -19,14 +19,17 @@ import {
   addIceCandidate,
   cleanupWebRTC,
 } from "../../services/webrtcService";
+import { useCall } from "../../context/CallContext";
 
 import "./ChatHeader.css";
 
 const ChatHeader = ({ conversation, isTyping }) => {
   const { user } = useContext(AuthContext);
   const remoteAudioRef = useRef(null);
-  const activeCallIdRef = useRef(null);
+  const activeCallRef = useRef(null);
+  //const activeCallIdRef = useRef(null);
   const { onlineUsers, lastSeenUsers } = useContext(OnlineUsersContext);
+  const { activeCall, setActiveCall, clearActiveCall } = useCall();
 
   console.log("========== CHAT HEADER ==========");
   console.log("Logged In User:", user);
@@ -34,18 +37,25 @@ const ChatHeader = ({ conversation, isTyping }) => {
   console.log("Participants:", conversation.participants);
 
   console.log("Logged User ID:", user.userId);
+
+  useEffect(() => {
+    activeCallRef.current = activeCall;
+
+    console.log("📞 activeCallRef updated:", activeCall);
+  }, [activeCall]);
   useEffect(() => {
     const handleWebRTCAnswer = async (data) => {
       console.log("📡 Caller received WebRTC answer:", data);
 
       const { callId, receiverId, answer } = data;
 
-      if (!activeCallIdRef.current) {
+      const currentCall = activeCallRef.current;
+      if (!currentCall) {
         console.log("⚠️ No active caller call.");
         return;
       }
 
-      if (activeCallIdRef.current !== callId) {
+      if (currentCall.callId !== callId) {
         console.log("⚠️ Answer belongs to another call.");
         return;
       }
@@ -66,12 +76,16 @@ const ChatHeader = ({ conversation, isTyping }) => {
 
       const { callId, candidate } = data;
 
-      if (!activeCallIdRef.current) {
+      const currentCall = activeCallRef.current;
+
+      console.log("📞 Current active call from ref:", currentCall);
+
+      if (!currentCall) {
         console.log("⚠️ No active caller call.");
         return;
       }
 
-      if (activeCallIdRef.current !== callId) {
+      if (currentCall.callId !== callId) {
         console.log("⚠️ ICE candidate belongs to another call.");
         return;
       }
@@ -103,17 +117,27 @@ const ChatHeader = ({ conversation, isTyping }) => {
   const lastSeen = lastSeenUsers[otherUser?._id];
 
   const handleEndCall = () => {
-    console.log("📞 CALLER ENDING CALL");
+    const currentCall = activeCallRef.current;
+    if (!currentCall) {
+      console.log("⚠️ No active call to end.");
+      return;
+    }
+
+    console.log("📞 CALLER ENDING CALL:", activeCall);
 
     endAudioCall({
-      callId,
-      receiverId,
+      callId: currentCall.callId,
+      receiverId:
+        currentCall.role === "caller"
+          ? currentCall.receiverId
+          : currentCall.callerId,
     });
 
     cleanupWebRTC();
 
-    setCallStarted(false);
-    setCallConnected(false);
+    clearActiveCall();
+
+    console.log("✅ Call ended and local state cleaned");
   };
 
   return (
@@ -167,10 +191,16 @@ const ChatHeader = ({ conversation, isTyping }) => {
             onClick={async () => {
               const callId = crypto.randomUUID();
 
-              activeCallIdRef.current = callId;
+              setActiveCall({
+                callId,
+                callerId: user.userId,
+                receiverId: otherUser._id,
+                role: "caller",
+              });
 
               console.log("📞 Starting Audio Call:", {
                 callId,
+                callerId: user.userId,
                 receiverId: otherUser._id,
               });
 
@@ -256,6 +286,9 @@ const ChatHeader = ({ conversation, isTyping }) => {
                       state === "closed"
                     ) {
                       console.log("❌ WebRTC connection ended:", state);
+                      cleanupWebRTC();
+
+                      //activeCallIdRef.current = null;
                     }
                   },
                 });
