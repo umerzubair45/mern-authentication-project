@@ -133,7 +133,7 @@ const ChatHeader = ({ conversation, isTyping }) => {
           : currentCall.callerId,
     });
 
-    cleanupWebRTC();
+    // cleanupWebRTC();
 
     clearActiveCall();
 
@@ -196,6 +196,8 @@ const ChatHeader = ({ conversation, isTyping }) => {
                 callerId: user.userId,
                 receiverId: otherUser._id,
                 role: "caller",
+                state: "calling",
+                remoteUser: otherUser,
               });
 
               console.log("📞 Starting Audio Call:", {
@@ -277,6 +279,10 @@ const ChatHeader = ({ conversation, isTyping }) => {
                     console.log("🌐 WebRTC Connection State:", state);
 
                     if (state === "connected") {
+                      setActiveCall((prev) => ({
+                        ...prev,
+                        state: "connected",
+                      }));
                       console.log("✅ WebRTC AUDIO CONNECTED");
                     }
 

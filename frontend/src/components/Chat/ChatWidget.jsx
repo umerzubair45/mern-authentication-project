@@ -79,45 +79,45 @@ const ChatWidget = () => {
       setPendingOffer(data);
     };
 
-    const handleAudioCallEnded = (data) => {
-      console.log("📴 Audio Call Ended:", data);
+    // const handleAudioCallEnded = (data) => {
+    //   console.log("📴 Audio Call Ended:", data);
 
-      const currentCall = activeCallRef.current;
+    //   const currentCall = activeCallRef.current;
 
-      if (!currentCall) {
-        console.log("⚠️ No active call in receiver.");
-        return;
-      }
+    //   if (!currentCall) {
+    //     console.log("⚠️ No active call in receiver.");
+    //     return;
+    //   }
 
-      if (currentCall.callId !== data.callId) {
-        console.log("⚠️ Ended call does not match active call.");
-        return;
-      }
+    //   if (currentCall.callId !== data.callId) {
+    //     console.log("⚠️ Ended call does not match active call.");
+    //     return;
+    //   }
 
-      console.log("🛑 REMOTE CALL ENDING");
+    //   console.log("🛑 REMOTE CALL ENDING");
 
-      cleanupWebRTC();
+    //   cleanupWebRTC();
 
-      console.log("🧹 Clearing active call from CallContext");
-      clearActiveCall();
-      setIncomingCall(null);
-      setPendingOffer(null);
-      setCallAccepted(false);
-      setActiveCall(null);
+    //   console.log("🧹 Clearing active call from CallContext");
+    //   clearActiveCall();
+    //   setIncomingCall(null);
+    //   setPendingOffer(null);
+    //   setCallAccepted(false);
+    //   setActiveCall(null);
 
-      console.log("✅ Receiver call cleanup complete");
-    };
+    //   console.log("✅ Receiver call cleanup complete");
+    // };
 
     socket.on("incoming_audio_call", handleIncomingAudioCall);
     socket.on("webrtc_offer", handleWebRTCOffer);
-    socket.on("audio_call_ended", handleAudioCallEnded);
+    // socket.on("audio_call_ended", handleAudioCallEnded);
 
     return () => {
       console.log("📞 ChatWidget: removing incoming call listeners");
 
       socket.off("incoming_audio_call", handleIncomingAudioCall);
       socket.off("webrtc_offer", handleWebRTCOffer);
-      socket.off("audio_call_ended", handleAudioCallEnded);
+      // socket.off("audio_call_ended", handleAudioCallEnded);
     };
   }, [user]);
 
@@ -169,7 +169,7 @@ const ChatWidget = () => {
 
     endAudioCall({
       callId: currentCall.callId,
-      receiverId: currentCall.receiverId,
+      //receiverId: currentCall.receiverId,
     });
 
     cleanupWebRTC();
@@ -201,7 +201,7 @@ const ChatWidget = () => {
 
     console.log("✅ ACCEPT CALL:", incomingCall);
 
-    const { callId, callerId, receiverId } = incomingCall;
+    const { callId, callerId, receiverId, caller } = incomingCall;
 
     acceptAudioCall({
       callerId,
@@ -211,8 +211,10 @@ const ChatWidget = () => {
     setActiveCall({
       callId,
       callerId,
-      receiverId,
+      receiverId: user.userId,
       role: "receiver",
+      state: "connecting",
+      remoteUser: caller,
     });
 
     console.log("📞 Receiver active call stored:", {
@@ -319,6 +321,10 @@ const ChatWidget = () => {
           console.log("🌐 Receiver WebRTC state:", state);
 
           if (state === "connected") {
+            setActiveCall((prev) => ({
+              ...prev,
+              state: "connected",
+            }));
             console.log("✅ AUDIO CALL CONNECTED");
           }
 
