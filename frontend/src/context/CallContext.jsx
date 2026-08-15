@@ -16,20 +16,18 @@ export const CallProvider = ({ children }) => {
 
   useEffect(() => {
     const handleAudioCallEnded = (data) => {
-      console.log("📴 CallContext: audio_call_ended received:", data);
+      console.log("🔥 CALLCONTEXT RECEIVED END EVENT:", data);
 
       setActiveCall((currentCall) => {
-        /*
-         * Ignore an old/stale call-ended event.
-         */
+        console.log("🔥 CURRENT ACTIVE CALL:", currentCall);
 
         if (!currentCall) {
-          console.log("⚠️ CallContext: no active call");
+          console.log("⚠️ No active call in CallContext");
           return null;
         }
 
         if (currentCall.callId !== data.callId) {
-          console.log("⚠️ CallContext: call ID mismatch", {
+          console.log("⚠️ CALL ID MISMATCH", {
             currentCallId: currentCall.callId,
             receivedCallId: data.callId,
           });
@@ -37,11 +35,12 @@ export const CallProvider = ({ children }) => {
           return currentCall;
         }
 
-        console.log("🧹 CallContext: remote call ended");
+        console.log("🔥 CALL ENDED → UPDATING CONTEXT");
 
-        cleanupWebRTC();
-
-        return null;
+        return {
+          ...currentCall,
+          state: "ended",
+        };
       });
     };
 

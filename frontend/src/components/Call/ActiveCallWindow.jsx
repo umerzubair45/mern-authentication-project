@@ -9,6 +9,7 @@ import "./ActiveCallWindow.css";
 
 const ActiveCallWindow = () => {
   const { activeCall, clearActiveCall } = useCall();
+  const [closedCallId, setClosedCallId] = useState(null);
 
   const activeCallRef = useRef(null);
   const [isMuted, setIsMuted] = useState(false);
@@ -20,7 +21,14 @@ const ActiveCallWindow = () => {
     return null;
   }
 
+  if (activeCall.state === "ended") {
+    return null;
+  }
+
   const { state, remoteUser } = activeCall;
+  if (state === "ended") {
+    return null;
+  }
 
   const displayName = remoteUser?.userName || "User";
   const avatarLetter = displayName.charAt(0).toUpperCase();
@@ -62,6 +70,10 @@ const ActiveCallWindow = () => {
    */
 
   const handleEnd = () => {
+    console.log("handle end call");
+    //console.log(activeCall);
+    console.log("call from receiver");
+
     const currentCall = activeCallRef.current;
 
     if (!currentCall) {
@@ -80,6 +92,10 @@ const ActiveCallWindow = () => {
 
     endAudioCall({
       callId: currentCall.callId,
+      receiverId:
+        currentCall.role === "caller"
+          ? activeCall.receiverId
+          : activeCall.callerId,
     });
 
     /*
@@ -89,8 +105,8 @@ const ActiveCallWindow = () => {
      */
 
     clearActiveCall();
-
-    console.log("✅ Call ended and local state cleaned");
+    console.log("📞 Closing ActiveCallWindow:", currentCall.callId);
+    setClosedCallId(currentCall.callId);
   };
 
   /*

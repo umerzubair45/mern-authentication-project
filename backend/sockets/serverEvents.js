@@ -362,7 +362,19 @@ const endAudioCall = (socket, data) => {
 
     const callerId = socket.user.userId;
 
+    console.log("📴 END CALL REQUEST:", {
+      callId,
+      endingUser: callerId,
+      targetUser: receiverId,
+    });
+
     const receiverSockets = getSocketIds(receiverId);
+
+    console.log("📡 TARGET SOCKETS:", {
+      targetUser: receiverId,
+      socketCount: receiverSockets.size,
+      socketIds: [...receiverSockets],
+    });
 
     for (const socketId of receiverSockets) {
       socket.to(socketId).emit("audio_call_ended", {
@@ -371,6 +383,7 @@ const endAudioCall = (socket, data) => {
         receiverId,
       });
     }
+    console.log("✅ audio_call_ended emitted");
   } catch (error) {
     console.error("End Audio Call Error:", error);
   }

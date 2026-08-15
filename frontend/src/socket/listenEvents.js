@@ -153,13 +153,13 @@ export const setupSocketListeners = ({
     onCallRejected?.(data);
   });
 
-  socket.off("audio_call_ended");
+  // socket.off("audio_call_ended");
 
-  socket.on("audio_call_ended", (data) => {
-    console.log("📴 Audio Call Ended:", data);
+  // socket.on("audio_call_ended", (data) => {
+  //   console.log("📴 Audio Call Ended:", data);
 
-    onCallEnded?.(data);
-  });
+  //   onCallEnded?.(data);
+  // });
 
   socket.off("call_unavailable");
 
@@ -239,7 +239,7 @@ export const removeSocketListeners = () => {
 
   socket.off("audio_call_rejected");
 
-  socket.off("audio_call_ended");
+  // socket.off("audio_call_ended");
 
   socket.off("call_unavailable");
 
