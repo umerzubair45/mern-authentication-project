@@ -4,7 +4,7 @@ import { useCall } from "../../context/CallContext";
 import CallTimer from "./CallTimer";
 import CallControls from "./CallControls";
 import { endAudioCall } from "../../socket/emitEvents";
-
+import { setMicrophoneMuted } from "../../services/webrtcService";
 import "./ActiveCallWindow.css";
 
 const ActiveCallWindow = () => {
@@ -40,7 +40,13 @@ const ActiveCallWindow = () => {
    */
 
   const handleMute = () => {
-    setIsMuted((prev) => !prev);
+    setIsMuted((prev) => {
+      const newMutedState = !prev;
+
+      setMicrophoneMuted(newMutedState);
+
+      return newMutedState;
+    });
   };
 
   /*
@@ -70,10 +76,6 @@ const ActiveCallWindow = () => {
    */
 
   const handleEnd = () => {
-    console.log("handle end call");
-    //console.log(activeCall);
-    console.log("call from receiver");
-
     const currentCall = activeCallRef.current;
 
     if (!currentCall) {

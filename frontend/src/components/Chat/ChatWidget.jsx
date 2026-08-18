@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState, useRef } from "react";
-
 import AuthContext from "../../context/AuthContext";
 import FloatingButton from "./FloatingButton";
 import ChatPopup from "./ChatPopup";
@@ -79,6 +78,61 @@ const ChatWidget = () => {
       setPendingOffer(data);
     };
 
+    const handleAudioCallEnded = (data) => {
+      console.log("📴 ChatWidget RECEIVED audio_call_ended:", data);
+
+      setIncomingCall((currentCall) => {
+        if (!currentCall) {
+          console.log("📴 No incoming call popup to close.");
+          return null;
+        }
+
+        if (currentCall.callId !== data.callId) {
+          console.log("⚠️ Ended call does not match incoming call:", {
+            incomingCallId: currentCall.callId,
+            endedCallId: data.callId,
+          });
+
+          return currentCall;
+        }
+
+        console.log("❌ Caller cancelled call. Closing IncomingCallPopup.");
+
+        return null;
+      });
+
+      setPendingOffer(null);
+      setCallAccepted(false);
+    };
+    // const handleAudioCallRejected = (data) => {
+    //   console.log("❌ ChatWidget RECEIVED audio_call_rejected:", data);
+
+    //   setActiveCall((currentCall) => {
+    //     if (!currentCall) {
+    //       console.log("❌ No active caller call.");
+    //       return null;
+    //     }
+
+    //     if (currentCall.callId !== data.callId) {
+    //       console.log("⚠️ Rejected call ID does not match:", {
+    //         currentCallId: currentCall.callId,
+    //         rejectedCallId: data.callId,
+    //       });
+
+    //       return currentCall;
+    //     }
+
+    //     console.log("❌ Receiver rejected call. Ending caller call.");
+
+    //     return {
+    //       ...currentCall,
+    //       state: "ended",
+    //     };
+    //   });
+
+    //   setPendingOffer(null);
+    //   setCallAccepted(false);
+    // };
     // const handleAudioCallEnded = (data) => {
     //   console.log("📴 Audio Call Ended:", data);
 
@@ -110,14 +164,16 @@ const ChatWidget = () => {
 
     socket.on("incoming_audio_call", handleIncomingAudioCall);
     socket.on("webrtc_offer", handleWebRTCOffer);
-    // socket.on("audio_call_ended", handleAudioCallEnded);
+    socket.on("audio_call_ended", handleAudioCallEnded);
+    //socket.on("audio_call_rejected", handleAudioCallRejected);
 
     return () => {
       console.log("📞 ChatWidget: removing incoming call listeners");
 
       socket.off("incoming_audio_call", handleIncomingAudioCall);
       socket.off("webrtc_offer", handleWebRTCOffer);
-      // socket.off("audio_call_ended", handleAudioCallEnded);
+      socket.off("audio_call_ended", handleAudioCallEnded);
+      //socket.off("audio_call_rejected", handleAudioCallRejected);
     };
   }, [user]);
 
@@ -169,7 +225,7 @@ const ChatWidget = () => {
 
     endAudioCall({
       callId: currentCall.callId,
-      //receiverId: currentCall.receiverId,
+      receiverId: currentCall.receiverId,
     });
 
     cleanupWebRTC();
@@ -439,25 +495,26 @@ const ChatWidget = () => {
       setPendingOffer(null);
     }
   };
-
-  /*
-   * ============================================================
-   * REJECT AUDIO CALL
-   * ============================================================
-   */
-
   const handleRejectCall = () => {
     if (!incomingCall) {
       return;
     }
 
-    console.log("❌ REJECT CALL:", incomingCall);
+    console.log("❌ REJECT CALLdffd:", incomingCall);
 
-    rejectAudioCall({
-      callerId: incomingCall.callerId,
-
+    endAudioCall({
       callId: incomingCall.callId,
+      receiverId:
+        incomingCall.role === "caller"
+          ? incomingCall.receiverId
+          : incomingCall.callerId,
     });
+    // rejectAudioCall({
+    //   callerId: incomingCall.callerId,
+
+    //   //callId: incomingCall.callId,
+    //   callId: incomingCall.receiverId,
+    // });
 
     setIncomingCall(null);
     setPendingOffer(null);
@@ -466,7 +523,6 @@ const ChatWidget = () => {
 
     cleanupWebRTC();
   };
-
   /*
    * ============================================================
    * NO USER

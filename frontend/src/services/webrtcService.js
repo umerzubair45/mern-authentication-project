@@ -115,6 +115,30 @@ export const getLocalAudioStream = async () => {
 };
 
 /**
+ * Mute / unmute local microphone
+ */
+export const setMicrophoneMuted = (muted) => {
+  if (!localStream) {
+    console.warn("⚠️ No local audio stream available.");
+    return false;
+  }
+
+  const audioTracks = localStream.getAudioTracks();
+
+  if (audioTracks.length === 0) {
+    console.warn("⚠️ No audio track found.");
+    return false;
+  }
+
+  audioTracks.forEach((track) => {
+    track.enabled = !muted;
+  });
+
+  console.log(muted ? "🔇 Microphone MUTED" : "🎙️ Microphone UNMUTED");
+
+  return true;
+};
+/**
  * Add local microphone tracks to peer connection
  */
 export const addLocalStream = (stream) => {
